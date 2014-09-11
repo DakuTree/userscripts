@@ -7,15 +7,15 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2014-09-09
-// @version      2.0.0
+// @updated      2014-09-11
+// @version      2.0.1
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
 var fontsize = "9px"; //Change this if you are using a non-standard font-size (This font-size only applies to scores you have just changed).
+var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
-	var dev = false; //Enable if you want some dev stuff
 	if(dev == true){
 		if(jQuery.fn.jquery !== '1.8.1'){
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.1.');
@@ -33,9 +33,6 @@ $(document).ready(function() {
 		if(userid == 0) return false;
 		type = self.location.pathname.split('/')[1].split('.')[0];
 
-		if(type == 'manga') return false; //TODO: MAL is shit. Read why at bottom of script.
-		var db_id = $('[name="aid"], [name="mid"]').val();
-
 		//Create precise scores select
 		var select = $('<select/>', {id: 'precise_score', class: 'inputtext', style: 'padding: 1px 0px 1px 0px'}).append(
 						$('<option/>', {value: '0', selected: true, text: '0'})).append(
@@ -49,23 +46,51 @@ $(document).ready(function() {
 						$('<option/>', {value: '8', text: '8'})).append(
 						$('<option/>', {value: '9', text: '9'}));
 
-		//Modify precise score if exists
-		$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
-			$(select).val(data['score_precise'].toString().split(".")[1]);
+		var db_id = $('[name="aid"]').val() || ((db_id = $('#addtolist a[href^="/panel.php?go=editmanga&id="]').attr('href')) ? db_id.match(/id=([0-9]+)$/)[1] : null); //Manga uses a different ID due to MAL being shit.
+		if(db_id){
+			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
+
+			if($('input[name=myinfo_submit]').val() == 'Update'){
+				//Modify precise score if exists
+				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
+					$(select).val(data['score_precise'].toString().split(".")[1]);
+				}).error(function(jqXHR, textStatus, errorThrown) {
+					if(dev == true){
+						alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
+					}
+				});
+			}
 			$(select).insertAfter('#myinfo_score');
 			$('#myinfo_score').after(' . ');
 			$('#myinfo_score').css('padding', '1px 0px 1px 0px');
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			if(dev == true){
-				alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
-			}
-		});
 
-		$('[name=myinfo_submit]').click(function(){
-			if($('#myinfo_score').val() !== 0){
-				update_pscores(db_id, $('#myinfo_score').val()+'.'+$('#precise_score').val(), false);
-			}
-		});
+			$('[name=myinfo_submit]').click(function(){
+				if($('#myinfo_score').val() !== 0){
+					update_pscores(db_id, $('#myinfo_score').val()+'.'+$('#precise_score').val(), false);
+				}
+			});
+		}else{
+			//To make manga precise scores work properly with lists, we need to use a seperate id
+			//Sadly this isn't set unless the actual has been already added to your own list
+			//This means we need to jump through some hoops.
+
+			$(select).insertAfter('#myinfo_score');
+			$('#myinfo_score').after(' . ');
+			$('#myinfo_score').css('padding', '1px 0px 1px 0px');
+	
+			$('[name=myinfo_submit]').attr('onclick', null);
+			$('[name=myinfo_submit]').click(function(){
+				$.post("/includes/ajax.inc.php?t=49", {mid: $('#myinfo_manga_id').val(), score: $('#myinfo_score').val(), status: $('#myinfo_status').val(), chapters: $('#myinfo_chapters').val(), volumes: $('#myinfo_volumes').val()},function(data) {
+					$("#myinfoDisplay").html('');
+					$("#addtolist").html(data);
+
+					db_id = ((db_id = $(data.responseText).attr('href')) ? db_id.match(/id=([0-9]+)$/)[1] : null);
+					if($('#myinfo_score').val() !== 0){
+						update_pscores(db_id, $('#myinfo_score').val()+'.'+$('#precise_score').val(), false);
+					}
+				});
+			});
+		}
 	}
 	else if(/myanimelist\.net\/(anime|manga)list\/.*/.test(self.location.href)){
 		userid = $('#listUserId').val(),
@@ -106,44 +131,78 @@ $(document).ready(function() {
 		if(userid == 0) return false;
 		type = $('#animeid, #mangaid').attr('id').substr(0, 5);
 
-		if(type == 'manga') return false; //TODO: MAL is shit. Read why at bottom of script.
+		//Create precise scores select
+		var select = $('<select/>', {id: 'precise_score', class: 'inputtext', style: 'padding: 1px 0px 1px 0px'}).append(
+						$('<option/>', {value: '0', selected: true, text: '0'})).append(
+						$('<option/>', {value: '1', text: '1'})).append(
+						$('<option/>', {value: '2', text: '2'})).append(
+						$('<option/>', {value: '3', text: '3'})).append(
+						$('<option/>', {value: '4', text: '4'})).append(
+						$('<option/>', {value: '5', text: '5'})).append(
+						$('<option/>', {value: '6', text: '6'})).append(
+						$('<option/>', {value: '7', text: '7'})).append(
+						$('<option/>', {value: '8', text: '8'})).append(
+						$('<option/>', {value: '9', text: '9'}));
 
-		$('<select/>', {id: 'precise_score', class: 'inputtext', style: 'padding: 1px 0px 1px 0px'}).append(
-			$('<option/>', {value: '0', selected: true, text: '0'})).append(
-			$('<option/>', {value: '1', text: '1'})).append(
-			$('<option/>', {value: '2', text: '2'})).append(
-			$('<option/>', {value: '3', text: '3'})).append(
-			$('<option/>', {value: '4', text: '4'})).append(
-			$('<option/>', {value: '5', text: '5'})).append(
-			$('<option/>', {value: '6', text: '6'})).append(
-			$('<option/>', {value: '7', text: '7'})).append(
-			$('<option/>', {value: '8', text: '8'})).append(
-			$('<option/>', {value: '9', text: '9'}))
-			.insertAfter('select[name=score]');
-		$('select[name=score]').after(' . ');
-
-		$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
-			$('#precise_score').val(data['score_precise'].split(".")[1]);
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			if(dev == true){
-				alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
+		var db_id = $('#animeid').val() || ((db_id = $('input[name=entry_id]').val()) !== "0" ? db_id : null) || null;
+		if(db_id){
+			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
+			if($('input[type=button][value^=Add], input[type=button][value^=Update]').val().split(" ")[0] == "Update"){
+				//Modify precise score if exists
+				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, 'db_id': db_id}, function(data) {
+					$(select).val(data['score_precise'].toString().split(".")[1]);
+					$(select).insertAfter('select[name=score]');
+					$('select[name=score]').after(' . ');
+					$('select[name=score]').css('padding', '1px 0px 1px 0px');
+				}).error(function(jqXHR, textStatus, errorThrown) {
+					if(dev == true){
+						alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
+					}
+				});
 			}
-		});
+			$(select).insertAfter('select[name=score]');
+			$('select[name=score]').after(' . ');
+			$('select[name=score]').css('padding', '1px 0px 1px 0px');
 
-		$('input[type=button]').click(function(){
-			update_pscores(
-				$('#animeid, #mangaid').val(),
-				$('#myinfo_score').val()+'.'+$('#precise_score').val(),
-				false
-			);
-		});
+			$('input[type=button][value^=Add], input[type=button][value^=Update]').click(function(){
+				if($('form[name$=Form] select[name=status]').val() !== '0' && $('select[name=score]').val() !== '0'){
+					update_pscores(db_id, parseInt($('select[name=score]').val())+'.'+$('#precise_score').val(), false);
+				}
+			});
+		}else{
+			$(select).insertAfter('select[name=score]');
+			$('select[name=score]').after(' . ');
+			$('select[name=score]').css('padding', '1px 0px 1px 0px');
+
+			$('form[name=mangaForm] input[name=submitIt]').val(1);
+
+			$('input[type=button][value^=Add]').attr('onclick', null);
+			$('input[type=button][value^=Add]').click(function(){
+				if($('form[name=mangaForm] select[name=status]').val() !== '0'){
+					$.post(location.href, $('form[name=mangaForm]').serialize(), function(d){
+						console.log(d);
+						//Unlike the /manga/ page, we can't simply check the return data for the entry_id
+						//Instead we need to send a second AJAX request. This is why I hate MAL.
+						$.get("http://myanimelist.net/manga.php", {id: $('#mangaid').val()}, function(data){
+							db_id = ((db_id = data.match(/panel\.php\?go=editmanga&id=([0-9]+)/)) ? db_id[1] : null);
+							if($('#myinfo_score').val() !== 0){
+								update_pscores(db_id, parseInt($('select[name=score]').val())+'.'+$('#precise_score').val(), false);
+							}
+							location.href = 'http://myanimelist.net/manga/'+$('#mangaid').val();
+						});
+					});
+				}else{
+					alert("You must select a status (watching, completed, etc...) for this series.");
+				}
+			});
+		}
 	}
 
 	function update_pscores(db_id, score, list){
 		list = list || false;
 		var newScore = Number(score);
 		if (isNaN(newScore) || (newScore>10) || (newScore<0)){
-			alert('Invalid score value, must be between 1 and 10');
+			alert('Invalid score value, must be between 0 and 10 || '+newScore);
 			return false;
 		}else{
 			var preciseScore = newScore.toFixed(1);
