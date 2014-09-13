@@ -8,7 +8,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @updated      2014-09-11
-// @version      2.0.1
+// @version      2.0.2
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -26,7 +26,7 @@ $(document).ready(function() {
 			return true;
 		}
 	}
-	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2],
+	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
 	    type;
 
 	if(/myanimelist\.net\/(anime|manga)\/[0-9]+/.test(self.location.href) || /myanimelist\.net\/(anime|manga)\.php\?id\=.*/.test(self.location.href)){
@@ -85,7 +85,7 @@ $(document).ready(function() {
 					$("#addtolist").html(data);
 
 					db_id = ((db_id = $(data.responseText).attr('href')) ? db_id.match(/id=([0-9]+)$/)[1] : null);
-					if($('#myinfo_score').val() !== 0){
+					if($('#myinfo_score').val() !== '0'){
 						update_pscores(db_id, $('#myinfo_score').val()+'.'+$('#precise_score').val(), false);
 					}
 				});
@@ -185,7 +185,7 @@ $(document).ready(function() {
 						//Instead we need to send a second AJAX request. This is why I hate MAL.
 						$.get("http://myanimelist.net/manga.php", {id: $('#mangaid').val()}, function(data){
 							db_id = ((db_id = data.match(/panel\.php\?go=editmanga&id=([0-9]+)/)) ? db_id[1] : null);
-							if($('#myinfo_score').val() !== 0){
+							if($('#myinfo_score').val() !== '0'){
 								update_pscores(db_id, parseInt($('select[name=score]').val())+'.'+$('#precise_score').val(), false);
 							}
 							location.href = 'http://myanimelist.net/manga/'+$('#mangaid').val();
