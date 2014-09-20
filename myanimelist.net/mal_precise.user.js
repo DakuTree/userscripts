@@ -150,7 +150,7 @@ $(document).ready(function() {
 			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
 			if($('input[type=button][value^=Add], input[type=button][value^=Update]').val().split(" ")[0] == "Update"){
 				//Modify precise score if exists
-				$.getJSON(backend+"mp_index.php", {user_id: userid, type: type, 'db_id': db_id}, function(data) {
+				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, 'db_id': db_id}, function(data) {
 					$(select).val(data['score_precise'].toString().split(".")[1]);
 					$(select).insertAfter('select[name=score]');
 					$('select[name=score]').after(' . ');
@@ -222,10 +222,10 @@ $(document).ready(function() {
 							#"+am[type][2]+db_id+":after { content: '"+preciseScore+"'; font-size: "+fontsize+"; }\
 						").appendTo('head');
 
-					$.get(backend+"mp_update.php", {user_id: userid, type: type, 'db_id': db_id, score_precise: preciseScore});
+					$.get(backend+"mp_update.php", {userid: userid, type: type, 'db_id': db_id, score_precise: preciseScore});
 				});
 			}else{
-				$.get(backend+"mp_update.php", {user_id: userid, type: type, 'db_id': db_id, score_precise: preciseScore});
+				$.get(backend+"mp_update.php", {userid: userid, type: type, 'db_id': db_id, score_precise: preciseScore});
 			}
 		}
 	}
