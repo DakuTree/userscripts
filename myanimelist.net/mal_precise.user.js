@@ -7,8 +7,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2014-09-11
-// @version      2.0.3
+// @updated      2014-09-20
+// @version      2.0.4
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -26,6 +26,7 @@ $(document).ready(function() {
 			return true;
 		}
 	}
+
 	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
 	    type;
 
@@ -149,7 +150,7 @@ $(document).ready(function() {
 			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
 			if($('input[type=button][value^=Add], input[type=button][value^=Update]').val().split(" ")[0] == "Update"){
 				//Modify precise score if exists
-				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, 'db_id': db_id}, function(data) {
+				$.getJSON(backend+"mp_index.php", {user_id: userid, type: type, 'db_id': db_id}, function(data) {
 					$(select).val(data['score_precise'].toString().split(".")[1]);
 					$(select).insertAfter('select[name=score]');
 					$('select[name=score]').after(' . ');

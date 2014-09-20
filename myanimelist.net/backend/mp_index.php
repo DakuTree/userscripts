@@ -7,18 +7,14 @@
 	if(!ctype_digit($_GET['userid']) || !in_array($_GET['type'], array('anime', 'manga'))) die('Incorrect Parameter(s).');
 	list($userid, $type) = array((int) $_GET['userid'], $_GET['type']."list");
 
-	include "config.php"; //Contains $dbhost / $dbuser / $dbpass / $dbname
-	$mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname); //Connect to MySQL Server
+	include "config.php"; //Contains $dbhost / $dbuser / $dbpass / $mp_dbname
+	$mysqli = new mysqli($dbhost, $dbuser, $dbpass, $mp_dbname); //Connect to MySQL Server
 
 	list($json, $x) = array(array(), 0);
 	if($_GET['db_id']){
 		if($stmt = $mysqli->prepare("SELECT db_id, score_precise FROM $type WHERE user_id = ? AND db_id = ?")){
-			if(!$stmt->bind_param("ii", $userid, $_GET['db_id'])){
-				echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-			}
-			if(!$stmt->execute()){
-				echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-			}
+			$stmt->bind_param("ii", $userid, $_GET['db_id']) or print("Binding parameters failed: ({$stmt->errno}) ".$stmt->error);
+			$stmt->execute() or print("Execute failed: (".$stmt->errno.") ". $stmt->error);
 
 			$stmt->bind_result($db_id, $score_precise);
 			$stmt->fetch();
@@ -31,18 +27,13 @@
 		}
 	}else{
 		if($stmt = $mysqli->prepare("SELECT db_id, score_precise FROM $type WHERE user_id = ?")){
-			if(!$stmt->bind_param("i", $userid)){
-				echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-			}
-			if(!$stmt->execute()){
-				echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-			}
+			$stmt->bind_param("i", $userid) or print("Binding parameters failed: ({$stmt->errno}) ".$stmt->error);
+			$stmt->execute() or print("Execute failed: (".$stmt->errno.") ". $stmt->error);
 
-			$result = $stmt->get_result();
-			$stmt->bind_result($db_id, $score_precise);
-			while ($row = $result->fetch_assoc()) {
-				$json[$x]['db_id'] = $row['db_id'];
-				$json[$x]['score_precise'] = $row['score_precise'];
+			$stmt->bind_result($r_db_id, $r_score_precise);
+			while ($stmt->fetch()) {
+				$json[$x]['db_id'] = $r_db_id;
+				$json[$x]['score_precise'] = $r_score_precise;
 				$x++;
 			}
 
