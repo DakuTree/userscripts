@@ -7,8 +7,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2014-09-20
-// @version      2.0.4
+// @updated      2014-09-26
+// @version      2.0.5
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -16,6 +16,8 @@ var fontsize = "9px"; //Change this if you are using a non-standard font-size (T
 var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
+	(this['unsafeWindow'] || window)['loaded_ps'] = true;
+
 	if(dev == true){
 		if(jQuery.fn.jquery !== '1.8.1'){
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.1.');
@@ -78,7 +80,7 @@ $(document).ready(function() {
 			$(select).insertAfter('#myinfo_score');
 			$('#myinfo_score').after(' . ');
 			$('#myinfo_score').css('padding', '1px 0px 1px 0px');
-	
+
 			$('[name=myinfo_submit]').attr('onclick', null);
 			$('[name=myinfo_submit]').click(function(){
 				$.post("/includes/ajax.inc.php?t=49", {mid: $('#myinfo_manga_id').val(), score: $('#myinfo_score').val(), status: $('#myinfo_status').val(), chapters: $('#myinfo_chapters').val(), volumes: $('#myinfo_volumes').val()},function(data) {
@@ -216,9 +218,10 @@ $(document).ready(function() {
 				$.post("/includes/ajax.inc.php?t="+am[type][0], pobj, function(data){
 					$('#scoretext'+db_id).attr('value', '');
 					//This feels extremely ugly, but it has to be done so it plays nice with the custom MAL_Precise CSS.
+					//We include content twice as a way to make it accessible via another JS script (since we can't access :after)
 					$('<style/>').attr('rel', 'stylesheet').attr('type', 'text/css')
 						.text("\
-							#"+am[type][2]+db_id+" { font-size: 0; }\
+							#"+am[type][2]+db_id+" { font-size: 0; content: '"+preciseScore+"'; }\
 							#"+am[type][2]+db_id+":after { content: '"+preciseScore+"'; font-size: "+fontsize+"; }\
 						").appendTo('head');
 
