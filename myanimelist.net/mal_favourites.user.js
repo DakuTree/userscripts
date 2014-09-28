@@ -3,9 +3,9 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Adds the ability to have more favourites than the current limit allows.
-// @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php).*$/
-// @updated      2014-09-19
-// @version      2.0.0
+// @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
+// @updated      2014-09-28
+// @version      2.0.1
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -73,7 +73,7 @@ $(document).ready(function() {
 		$('#favOutputExtended').click(function(){
 			var name = $('#contentWrapper > h1:eq(0)').text().replace(/^Ranked #[0-9]+/, '').trim(),
 			    thumbURL = $('tbody tr:eq(0) div:eq(0) img').attr('src');
-			thumbURL = (type == 'character' ? thumbURL.replace('.jpg', 't.jpg') : thumbURL.replace('.jpg', 'v.jpg'));
+			thumbURL = (type == 2 ? thumbURL.replace('.jpg', 't.jpg') : thumbURL.replace('.jpg', 'v.jpg'));
 
 			var params = {
 				userid: userid,
@@ -83,9 +83,9 @@ $(document).ready(function() {
 				preview_url: thumbURL.replace('http://', '')
 			};
 
-			if(type == 'character'){
-				var series = $('table:eq(2) a:eq(0), table:eq(2) a:eq(1)').first();
-				params = $.params(params, {series_title: series.text(), series_url: series.attr('href').replace('http://', '')});
+			if(type == 2){
+				var series = $('#content > table > tbody > tr > td:eq(0) .normal_header ~ table tr td:eq(1) a:eq(0)').first();
+				params = $.extend(params, {series_title: series.text(), series_url: series.attr('href').replace('http://', '')});
 			}
 			$.get(backend+"mf_update.php", params, function(data){
 				$('#favOutputExtended').html(data);
