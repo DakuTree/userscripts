@@ -16,8 +16,8 @@
 	$mysqli = new mysqli($dbhost, $dbuser, $dbpass, $mh_dbname); //Connect to MySQL Server
 
 	if($type == 'anime'){
-		// if(!isset($_POST['ep_watched']) || !isset($_POST['ep_count'])) die('Missing Parameter(s).');
-		// if(!ctype_digit($_POST['ep_watched']) || !ctype_digit($_POST['ep_count'])) die('Incorrect Parameter(s).');
+		list($ep_watched, $ep_count) = array(($_POST['ep_watched'] || NULL), ($_POST['ep_count'] || NULL));
+		if(($ep_watched !== NULL && !ctype_digit($ep_watched)) || ($ep_count !== NULL && !ctype_digit($ep_count))) die('Incorrect Parameter(s).');
 		if($stmt = $mysqli->prepare("INSERT INTO anime (userid, db_id, title, status, score, ep_watched, ep_count, addup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
 			$stmt->bind_param("iisssiis", $userid, $db_id, $title, $status, $score, $_POST['ep_watched'], $_POST['ep_count'], $addup) or print("Binding parameters failed: ({$stmt->errno}) {$stmt->error}");
 			$stmt->execute() or print("Execute failed: (".$stmt->errno.") ".$stmt->error);
@@ -27,8 +27,9 @@
 		}
 	}
 	elseif($type == 'manga'){
-		// if(!isset($_POST['ch_read']) || !isset($_POST['ch_count']) || !isset($_POST['vol_read']) || !isset($_POST['vol_count'])) die('Missing Parameter(s).');
-		// if(!ctype_digit($_POST['ch_read']) || !ctype_digit($_POST['ch_count']) || !ctype_digit($_POST['vol_read']) || !ctype_digit($_POST['vol_count'])) die('Incorrect Parameter(s).');
+		list($ch_read, $ch_count, $vol_read, $vol_count) = array(($_POST['ch_read'] || NULL), ($_POST['ch_count'] || NULL), ($_POST['vol_read'] || NULL), ($_POST['vol_count'] || NULL));
+		if(($ch_read !== NULL && !ctype_digit($ch_read)) || ($ch_count !== NULL && !ctype_digit($ep_count)) || ($vol_read !== NULL && !ctype_digit($vol_read)) || ($vol_count !== NULL && !ctype_digit($vol_count))) die('Incorrect Parameter(s).');
+
 		if($stmt = $mysqli->prepare("INSERT INTO manga (userid, db_id, title, status, score, ch_read, ch_count, vol_read, vol_count, addup) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
 			$stmt->bind_param("iisssiiiis", $userid, $db_id, $title, $status, $score, $_POST['ch_read'], $_POST['ch_count'], $_POST['vol_read'], $_POST['vol_count'], $addup) or print("Binding parameters failed: ({$stmt->errno}) {$stmt->error}");
 			$stmt->execute() or print("Execute failed: (".$stmt->errno.") ".$stmt->error);
@@ -39,6 +40,4 @@
 	}
 
 	$mysqli->close();
-
-	/* FIX anime/manga type checking */
 ?>

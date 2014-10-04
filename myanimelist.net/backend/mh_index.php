@@ -74,7 +74,49 @@
 	$mysqli->close();
 
 	if(!empty($_GET['force']) & $_GET['force'] == 'html'){
-		//echo HTML
+		//This is shitty but it works.
+		header('Content-Type: text/html; charset=utf-8');
+		echo "
+			<html>
+			<head>
+				<style type='text/css'>table { width: 100%; }</style>
+			</head>
+			<body>
+				<!-- We should probably have a next/prev link here, but too lazy -->
+				<table>
+					<tr>
+						<td>Type</td>
+						<td>DB ID</td>
+						<td>Title</td>
+						<td>Status</td>
+						<td>Score</td>
+						<td>Ch/Ep Digested</td>
+						<td>Ch/Ep Count</td>
+						<td>Vol Read</td>
+						<td>Vol Count</td>
+						<td>Add/Update</td>
+						<td>Timestamp UTC</td>
+					</tr>";
+		foreach($json as $row){
+			echo "
+				<tr>
+					<td>{$row[0]}</td>
+					<td>{$row[1]}</td>
+					<td>{$row[2]}</td>
+					<td>{$row[3]}</td>
+					<td>{$row[4]}</td>
+					<td>{$row[5]}</td>
+					<td>{$row[6]}</td>
+					<td>{$row[7]}</td>
+					<td>{$row[8]}</td>
+					<td>{$row[9]}</td>
+					<td>{$row[10]}</td>
+				</tr>";
+		}
+		echo "
+				</table>
+			</body>
+			</html>";
 	}else{
 		echo json_encode($json);
 	}
