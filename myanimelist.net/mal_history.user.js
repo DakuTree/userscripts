@@ -7,14 +7,13 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2014-09-28
-// @version      2.0.0 pre-release
+// @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
+// @updated      2014-10-04
+// @version      2.0.0 pre-release v2
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
 var dev = false; //Enable if you want some dev stuff
-
-//TODO: Show AJAX list on history page
 
 $(document).ready(function() {
 	if(dev == true){
@@ -31,6 +30,71 @@ $(document).ready(function() {
 	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
 	    type;
 	if(userid == 0) return false;
+
+	if(/myanimelist\.net\/history\/.*/.test(self.location.href)){
+		type = self.location.pathname.split('/')[3] || 'all';
+
+		$('#content > div > table > tbody').empty(); //empty current list
+		$('#horiznav_nav > ul').append(
+			$('<li/>').append(
+				$('<a/>', {text: 'Offsite MAL History', href: backend+'mh_index.php?'+$.param({userid: userid, type: type, page: 1, force: 'html'})})
+			)
+		)
+
+		$.getJSON(backend+'mh_index.php', {userid: userid, type: type, page: 1}, function(data){
+			if(data['error']){ handle_error(data['error']); }
+			//TODO : Add option to load more pages || Possibly paginator?
+			var dateobj = {};
+			$.each(data, function(k, v){
+				var date  = new Date(v[10]+' UTC'),
+					ymg   = (date.getFullYear().toString())+'/'+(('0' + (date.getMonth()+1)).slice(-2))+'/'+(('0'+date.getDate()).slice(-2));
+
+				//Date is changed to local timezone above by appending UTC, make sure string is changed to show that.
+				v[10] = ymg+' '+(('0' + (date.getHours())).slice(-2))+':'+(('0' + (date.getHours())).slice(-2))+':'+(('0' + (date.getSeconds())).slice(-2));
+
+				dateobj[ymg] = (dateobj[ymg] || []);
+				dateobj[ymg].push(v);
+			});
+
+			$.each(dateobj, function(subheader, rows){
+				$('<tr/>').append(
+					$('<td/>', {colspan: '3'}).append(
+						$('<div/>', {'class': 'normal_header'}).append(
+							document.createTextNode(subheader+' ')).append(
+							$('<span/>', {'style': 'font-weight: normal;'}).append(
+								$('<small/>', {text: '('+rows.length+')'})))))
+				.appendTo('#content > div > table > tbody');
+				$.each(rows, function(key, row){
+					//TODO: Use all of the info provided in JSON
+					//TODO: Add link at top of list linking to standalone list.
+					//row[0] = type
+					//row[1] = db_id
+					//row[2] = title
+					//row[3] = status
+					//row[4] = score
+					//row[5] = chep_digested
+					//row[6] = chep_count
+					//row[7] = vol_read
+					//row[8] = vol_count
+					//row[9] = addup
+					//row[10] = timestamp
+
+					//TYPE: (STATUS) - (TITLE) (ep|ch). (CHEP_DIGESTED)/(CHEP_COUNT) {|| vol. (VOL_READ)/(VOL_COUNT)} (TIMESTAMP)
+					$('<tr/>').append(
+						$('<td/>', {'class': 'borderClass'}).append(
+							document.createTextNode(row[3]))).append(
+						$('<td/>', {'class': 'borderClass'}).append(
+							$('<a/>', {href: '/'+row[0]+'/'+row[1], text: row[2]})).append(
+							document.createTextNode(' '+(row[0] == 'anime' ? 'ep':'ch')+'. ')).append(
+								$('<strong/>', {text: (row[5]||'?')+'/'+(row[6]||'?')})).append(
+							(row[0] == 'anime' ? '' : ($(document.createTextNode(' || vol. ')).after(
+								$('<strong/>', {text: (row[7]||'?')+'/'+(row[8]||'?')})))))).append(
+						$('<td/>', {'class': 'borderClass', align: 'right', text: row[10]}))
+					.appendTo('#content > div > table > tbody');
+				});
+			});
+		});
+	}
 
 	if(/myanimelist\.net\/(anime|manga)\/[0-9]+/.test(self.location.href) || /myanimelist\.net\/(anime|manga)\.php\?id\=.*/.test(self.location.href)){
 		$('[name=myinfo_submit]').click(function(){
@@ -121,10 +185,7 @@ $(document).ready(function() {
 
 		console.log("Attempting to update history...");
 		$.post(backend+'mh_update.php', info, function(data){
-			if(data){
-				console.log("ERROR: "+data);
-				if(dev){ alert("ERROR: "+data);	}
-			}
+			if(data){ handle_error(JSON.parse(data['error'])['error']); }
 		});
 	}
 
@@ -145,5 +206,10 @@ $(document).ready(function() {
 		}
 
 		return score || null;
+	}
+
+	function handle_error(error){
+		console.error('ERROR (MH): '+error);
+		if(dev){ alert('ERROR (MH): '+error); }
 	}
 });
