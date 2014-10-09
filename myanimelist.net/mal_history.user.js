@@ -8,8 +8,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
-// @updated      2014-10-04
-// @version      2.0.0
+// @updated      2014-10-09
+// @version      2.0.1
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -167,7 +167,7 @@ $(document).ready(function() {
 			score = (loaded ? $('select[name=score]').val()+'.'+$('#precise_score').val() : $('select[name=score]').val());
 		}
 
-		return score || null;
+		return +score || null;
 	}
 
 	function get_history(type, page){
