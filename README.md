@@ -49,6 +49,9 @@ It lacks a few features which could be considered neccessary though. Any scripts
 This is intended to be a dump for small tweaks to Backloggery.   
 Currently the only tweak this adds is one that sorts any game with the [on-hold] tag to the bottom of the list (with it's own header)
 
+#### backloggery_ajaxcookie
+This turns the fortune cookie into one that uses AJAX so it's easy/quick to get a new cookie.
+
 ## Misc
 If you want, you can also grab my userscripts from [GreasyFork](https://greasyfork.org/users/2392-daku).  
 If you find any issues, please submit an issue to the repo or send me an email.
