@@ -6,7 +6,7 @@
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
 // @updated      2014-10-09
-// @version      2.0.0
+// @version      2.0.1
 // @run-at       document-start
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
@@ -64,13 +64,13 @@ function main(){
 					.navbar li ul a {border-right: 0;}\
 					.navbar li ul a:not(:first-child) {border-top: 1px solid "+color1+"}\
 					.navbar li ul a:hover {background-color: "+color1+";}\
-					.navbar li form {margin-top: 2px;}\
+					.navbar li form {margin-top: 0;}\
 					.navbar li form input {margin-right: 1px;}\
 					.navbar li form ul {font-weight: normal;}\
 					.navbar .nopm a {text-decoration: underline; font-size: 8pt; display: inline; border: 0 !important;}\
 					.navbar .nopm a:hover {background-color: transparent;}\
 					.navbar .stdinput, .stdbtn {margin: auto;}\
-					.navbar .stdbtn {height: 20px !important; padding: 1px 6px; background-color: "+color1+"; color: "+color3+";}\
+					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
 					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+";}\
 					.navbar table.itc {border-spacing: 1px; padding-top: 1px; padding-bottom: 1px;}\
 					.navbar table.itc td {padding: 0;}\
@@ -152,7 +152,8 @@ function main(){
 						$('<div/>', {id: 'fsdiv', style: 'display: none;'}))
 		).appendTo(nav); //}
 
-		$('#nb').replaceWith(nav2);
+		//$('#nb').replaceWith(nav2);
+		$('body').prepend(nav2);
 
 		$('#navwrap').on('click', '.nopm > a', function(e){
 			var id = ($(this).attr('id') == 'show_ao' ? 'advdiv' : 'fsdiv');
