@@ -9,7 +9,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
 // @updated      2014-10-09
-// @version      2.0.1
+// @version      2.0.2
+// @run-at       document-idle
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -27,11 +28,13 @@ $(document).ready(function() {
 		}
 	}
 
-	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
+	var userid = (document.cookie.match('(^|; )A=([^;]*)')||0)[2] || 0,
 	    type;
-	if(userid == 0) return false;
+	if(userid == 0){ dev_alert('userid = 0'); return false; }
 
 	if(/myanimelist\.net\/history\/.*/.test(self.location.href)){
+		dev_log('history page matched');
+
 		type = self.location.pathname.split('/')[3] || 'all';
 
 		$('#content > div > table > tbody').empty(); //empty current list
@@ -228,4 +231,7 @@ $(document).ready(function() {
 		console.error('ERROR (MH): '+error);
 		if(dev){ alert('ERROR (MH): '+error); }
 	}
+
+	function dev_log(text) { if(dev == true){ console.log('DEV: '+text); } }
+	function dev_alert(text) { if(dev == true){ alert('DEV: '+text); } }
 });

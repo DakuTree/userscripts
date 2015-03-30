@@ -5,7 +5,7 @@
 // @description  Adds the ability to have more favourites than the current limit allows.
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
 // @updated      2014-09-28
-// @version      2.0.1
+// @version      2.0.2
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -23,7 +23,7 @@ $(document).ready(function() {
 		}
 	}
 
-	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
+	var userid = (document.cookie.match('(^|; )A=([^;]*)')||0)[2] || 0,
 	    type;
 
 	if(/myanimelist\.net\/(profile)\/.*$/.test(self.location.href)){

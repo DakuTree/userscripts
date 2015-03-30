@@ -8,7 +8,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @updated      2014-09-26
-// @version      2.0.5
+// @version      2.0.6
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -29,7 +29,7 @@ $(document).ready(function() {
 		}
 	}
 
-	var userid = (document.cookie.match('(^|; )Y=([^;]*)')||0)[2] || 0,
+	var userid = (document.cookie.match('(^|; )A=([^;]*)')||0)[2] || 0,
 	    type;
 
 	if(/myanimelist\.net\/(anime|manga)\/[0-9]+/.test(self.location.href) || /myanimelist\.net\/(anime|manga)\.php\?id\=.*/.test(self.location.href)){
