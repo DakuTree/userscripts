@@ -8,8 +8,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
-// @updated      2014-10-09
-// @version      2.0.2
+// @updated      2015-04-17
+// @version      2.1.0
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -28,7 +28,7 @@ $(document).ready(function() {
 		}
 	}
 
-	var userid = (document.cookie.match('(^|; )A=([^;]*)')||0)[2] || 0,
+	var userid = (document.cookie.match('(^|; )(A|Y)=([^;]*)')||0)[3] || find_userid() || 0,
 	    type;
 	if(userid == 0){ dev_alert('userid = 0'); return false; }
 
@@ -225,6 +225,51 @@ $(document).ready(function() {
 				});
 			});
 		});
+	}
+
+	function find_userid() {
+		var userid,
+		    unsafeWindow = this['unsafeWindow'] || window;
+
+		//#1: Check localStorage to see if userid is already set?
+		//    Also if expired, delete localStorage.
+		if(unsafeWindow.localStorage.getItem('userid')) {
+			var userid_data = JSON.parse(unsafeWindow.localStorage.getItem('userid'));
+			if(new Date().getTime() > userid_data['timestamp']) {
+				unsafeWindow.localStorage.removeItem('userid');
+				console.log('localstorage found userid but has expired');
+			}else{
+				userid = userid_data['userid'];
+				console.log('localstorage found userid');
+			}
+		}
+
+		if(!userid) {
+			//#2: localstorage does not exists, manually try and find userid
+
+			//#2.1: Check if user is online, and if so, get username.
+			var userName;
+			$.get('http://myanimelist.net/panel.php', function(data) {
+				userName = data.match(/\/profile\/(.*?)"/)[1];
+				console.log(userName);
+				if(userName) {
+					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
+					$.get('http://myanimelist.net/profile/'+userName, function(data) {
+						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
+						userid = data.match(/name="profileMemId" value="([0-9]+)"/)[1];
+						if(userid) {
+							var expireTime = (14 * 24 * 60 * 60 * 1000); //2 weeks expire
+							unsafeWindow.localStorage.setItem('userid', JSON.stringify({'userid': userid, 'timestamp': (new Date().getTime() + expireTime)}));
+							console.log('userid found');
+						}
+					});
+				}else{
+					//User is not online, alert them?
+				}
+			});
+		}
+
+		return userid;
 	}
 
 	function handle_error(error){
