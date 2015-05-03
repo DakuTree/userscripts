@@ -2,12 +2,11 @@
 // @name         E(x)-Hentai CompactSearch
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
-// @description  Compacts the search into the topbar, saving vertical space.
+// @description  Compacts the search into the topbar, saving vertical space. Supports E-Hentai & EXHentai.
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
 // @updated      2014-10-09
-// @version      2.0.1
-// @run-at       document-start
+// @version      2.0.3
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -15,6 +14,7 @@
 //Use Stylish
 GM_addStyle("#toppane, #nb {display: none !important;}"); //Hide elements before load
 var domain = (location.host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1].replace('-', '');
+domain = 'exhentai'; //#gitignore
 
 function addJQuery(callback){
 	var script = document.createElement("script");
@@ -35,10 +35,12 @@ function main(){
 		var v = new Object();
 		if($('form input[id*="f_"], #searchbox input[name="f_search"]').length > 0){
 			$('form input[id*="f_"], input[name="f_search"]').each(function(){ v[$(this).attr('name')] = $(this).attr('value')});
+			console.log($('html'));
 			unsafeWindow.localStorage.setItem('s', JSON.stringify(v));
 		}else{
 			v = JSON.parse(unsafeWindow.localStorage.getItem('s'));
 			v['f_search'] = "Search Keywords"; //Show default text on non-search pages.
+			
 		}
 
 		var ex_colors = ['#34353b', '#4f535b', '#f1f1f1'];
@@ -71,7 +73,7 @@ function main(){
 					.navbar .nopm a:hover {background-color: transparent;}\
 					.navbar .stdinput, .stdbtn {margin: auto;}\
 					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
-					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+";}\
+					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+"; padding-bottom: 1px; border: 1px solid "+color1+";}\
 					.navbar table.itc {border-spacing: 1px; padding-top: 1px; padding-bottom: 1px;}\
 					.navbar table.itc td {padding: 0;}\
 					.navbar #fill {width: calc(100% - 450px - 507px - 16px);}\

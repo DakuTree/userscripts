@@ -2,10 +2,10 @@
 // @name         E(x)-Hentai One-Click DL
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
-// @description  Enables one-click DL archive downloading. (GP/Credits are still required)
+// @description  Enables one-click DL archive downloading (GP/Credits are still required). Supports E-Hentai & EXHentai.
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/g\/.*$/
 // @updated      2013-07-29
-// @version      1.0.2
+// @version      1.0.3
 // ==/UserScript==
 
 var a = document.getElementsByClassName('g2')[0].getElementsByTagName('a')[0];
