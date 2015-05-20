@@ -8,7 +8,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @updated      2015-04-17
-// @version      2.1.0
+// @version      2.1.1
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -16,8 +16,6 @@ var fontsize = "9px"; //Change this if you are using a non-standard font-size (T
 var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
-	(this['unsafeWindow'] || window)['loaded_ps'] = true;
-
 	if(dev == true){
 		if(jQuery.fn.jquery !== '1.8.1'){
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.1.');
@@ -49,12 +47,12 @@ $(document).ready(function() {
 						$('<option/>', {value: '8', text: '8'})).append(
 						$('<option/>', {value: '9', text: '9'}));
 
-		var db_id = $('[name="aid"]').val() || ((db_id = $('#addtolist a[href^="/panel.php?go=editmanga&id="]').attr('href')) ? db_id.match(/id=([0-9]+)$/)[1] : null); //Manga uses a different ID due to MAL being shit.
+		var db_id = $('[name="aid"]').val() || $('[name="mid"]').val() || ((db_id = $('#addtolist a[href^="/panel.php?go=editmanga&id="]').attr('href')) ? db_id.match(/id=([0-9]+)$/)[1] : null); //Manga uses a different ID due to MAL being shit.
 		if(db_id){
 			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
 
-			if($('input[name=myinfo_submit]').val() == 'Update'){
-				//Modify precise score if exists
+			//Check if series is already on list, if so update precise score
+			if($('input[name=myinfo_submit]').val() == 'Submit'){
 				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
 					$(select).val(data['score_precise'].toString().split(".")[1]);
 				}).error(function(jqXHR, textStatus, errorThrown) {
