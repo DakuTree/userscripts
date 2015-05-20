@@ -9,7 +9,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
 // @updated      2015-04-17
-// @version      2.1.0
+// @version      2.1.1
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -64,7 +64,7 @@ $(document).ready(function() {
 	if(/myanimelist\.net\/(anime|manga)\/[0-9]+/.test(self.location.href) || /myanimelist\.net\/(anime|manga)\.php\?id\=.*/.test(self.location.href)){
 		$('[name=myinfo_submit]').click(function(){
 			submit_history({
-				type: self.location.pathname.split('/')[1].split('.')[0], addup: $('[name=myinfo_submit]').val(),
+				type: self.location.pathname.split('/')[1].split('.')[0], addup: $('[name=myinfo_submit]').val().replace('Submit', 'Update'),
 				db_id: $('[name="aid"], [name="mid"]').attr('value'),
 				title: $('#contentWrapper > h1:first-of-type').contents().filter(function() { return this.nodeType == Node.TEXT_NODE; }).text().trim(),
 				status: $('#myinfo_status option:selected').text().trim(),
@@ -105,7 +105,7 @@ $(document).ready(function() {
 	else if(/myanimelist\.net\/panel\.php\?go\=(edit|add).*/.test(self.location.href) || /myanimelist\.net\/editlist\.php\?type\=(anime|manga).*/.test(self.location.href)){
 		$('input[type=button][value^=Add], input[type=button][value^=Update]').click(function(){
 			submit_history({
-				type: $('#animeid, #mangaid').attr('id').substr(0, 5), addup: $('#contentWrapper > h1').text().trim(),
+				type: $('#animeid, #mangaid').attr('id').substr(0, 5), addup: $('#contentWrapper > h1').text().trim().replace('Submit', 'Update'),
 				id: $('#animeid, #mangaid').val(),
 				title: $('strong').text().trim(),
 				status: $('#status option:selected').text().trim(),
@@ -159,15 +159,16 @@ $(document).ready(function() {
 		    loaded = (this['unsafeWindow'] || window)['loaded_ps'];
 
 		if(type == 1){
-			score = (loaded ? $('#myinfo_score').val()+'.'+$('#precise_score').val() : $('#myinfo_score').val());
+			score = ($('#precise_score') ? $('#myinfo_score').val()+'.'+$('#precise_score').val() : $('#myinfo_score').val());
 		}
 		else if(type == 2){
 			score = $(row).find('input[id^=score]').val(); //Set score from input value
-			if(loaded && !score){ score = $(row).find('span[id^=score]').css('content').replace(/('|")/g, ''); }
+			if(!score){ score = $(row).find('span[id^=score]').css('content').replace(/('|")/g, ''); /*CHECK: Can this throw errors?*/}
 			score = (score || $(row).find('span[id^=score]').parent().text());
 		}
 		else if(type == 3){
-			score = (loaded ? $('select[name=score]').val()+'.'+$('#precise_score').val() : $('select[name=score]').val());
+			score = ($('#precise_score') ? $('select[name=score]').val()+'.'+$('#precise_score').val() : $('select[name=score]').val());
+
 		}
 
 		return +score || null;
