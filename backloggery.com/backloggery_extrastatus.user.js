@@ -5,7 +5,7 @@
 // @description  Adds functionality which allows users to categorize their "now playing" games.
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
-// @version      1.0.0
+// @version      1.1.0
 // ==/UserScript==
 
 var categories = {
@@ -47,9 +47,16 @@ $(document).ready(function() {
 
 			//move elements containing key to bottom of list
 			$(elements).each(function(){
-				var a = $(this),
-					b = $(a).next();
+				var a = $(this);
 
+				//remove the tag from the description if at start or end. keep otherwise (to avoid problems)
+				$(a).children(':eq(4)').text(function() {
+					//Check: Is there a better way to do this regex? Lots of duplication here..
+					var re = new RegExp('(?:^[\\s]*\\['+key+'\\][\\s]*|[\\s]*\\['+key+'\\][\\s]*$)','i');
+					return $(this).text().replace(re, '');
+				});
+
+				var b = $(a).next();
 				$(a, b).appendTo('#intro');
 			});
 		}
