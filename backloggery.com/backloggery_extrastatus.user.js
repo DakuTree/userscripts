@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         Backloggery - NP Extra Status
+// @name         Backloggery - NP Extra Statuses
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
-// @description  Adds functionality which allows users to categorize their "now playing" games.
+// @description  Adds ability to filter "Now Playing" games under "On-Hold" & "Plan to Play".
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
-// @version      1.1.0
+// @version      1.1.1
 // ==/UserScript==
 
 var categories = {
