@@ -3,7 +3,7 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Adds functionality which allows users to categorize their "now playing" games.
-// @include      /^http[s]?:\/\/(www\.)?backloggery\.com\/.*$/
+// @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
 // @version      0.0.1
 // ==/UserScript==
