@@ -5,18 +5,53 @@
 // @description  Adds functionality which allows users to categorize their "now playing" games.
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
-// @version      0.0.1
+// @version      1.0.0
 // ==/UserScript==
 
-// {
-	var elements = $('.npgame:contains(\[on-hold\])');
-	if(elements){
-		$('#intro').append($('<h1/>', {text: 'On-Hold', style: 'margin-top: 10px;'}));
-		$(elements).each(function(){
-			var a = $(this),
-				b = $(a).next();
+var categories = {
+	"on-hold": "On-Hold",
+	"to-play": "Plan to Play" //FIXME: This feels like shitty wording.
+};
 
-			$(a, b).appendTo('#intro');
-		});
+var dev = false; //Enable if you want some dev stuff.
+
+$(document).ready(function() {
+	if(dev == true){
+		if(jQuery.fn.jquery !== '1.8.3') alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.3.');
+
+		//https://danlimerick.wordpress.com/2014/01/18/how-to-catch-javascript-errors-with-window-onerror-even-on-chrome-and-firefox/
+		window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+			alert('Error: '+errorMsg+'\n'
+			     +'ScriptURL: '+url+'\n'
+			     +'LineNumber: '+lineNumber+'\n'
+			     +'Column: '+column+'\n'
+			     +'StackTrace: '+errorObj);
+
+			error = true;
+			return true;
+		}
 	}
-// }
+
+	//Case insensitive :contains || via: https://gist.github.com/jbcappell/2648373
+	$.extend($.expr[":"], {
+		"containsNC": function(elem, i, match, array) {
+			return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+		}
+	});
+
+	/** SCRIPT **/
+	$.each(categories, function(key, value) {
+		var elements = $('.npgame:containsNC(\['+key+'\])');
+		if(elements.length > 0){
+			$('#intro').append($('<h1/>', {text: value, style: 'margin-top: 12px;'})); //Add header
+
+			//move elements containing key to bottom of list
+			$(elements).each(function(){
+				var a = $(this),
+					b = $(a).next();
+
+				$(a, b).appendTo('#intro');
+			});
+		}
+	});
+});
