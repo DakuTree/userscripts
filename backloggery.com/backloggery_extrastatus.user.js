@@ -2,9 +2,10 @@
 // @name         Backloggery - NP Extra Status
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
+// @description  Adds functionality which allows users to categorize their "now playing" games.
 // @include      /^http[s]?:\/\/(www\.)?backloggery\.com\/.*$/
-// @updated      2015-01-08
-// @version      1.1.0
+// @updated      2015-05-30
+// @version      0.0.1
 // ==/UserScript==
 
 // {
