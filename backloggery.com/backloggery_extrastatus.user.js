@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Backloggery - Misc Tweaks
+// @name         Backloggery - NP Extra Status
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @include      /^http[s]?:\/\/(www\.)?backloggery\.com\/.*$/
 // @updated      2015-01-08
-// @version      1.0.0
+// @version      1.1.0
 // ==/UserScript==
 
 // {
