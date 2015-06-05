@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Adds the ability to have more favourites than the current limit allows.
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
 // @updated      2015-04-17
 // @version      2.1.0

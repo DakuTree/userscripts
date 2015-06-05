@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Various small tweaks to MAL
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php\?id\=).*$/
 // @updated      2014-10-04
 // @version      1.0.1

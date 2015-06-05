@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Makes the cookie of fortune use AJAX rather than go to a seperate page.
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(www\.)?backloggery\.com\/random\.php\?user\=.*$/
 // @grant        GM_addStyle
 // @updated      2014-08-26

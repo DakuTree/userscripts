@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Adds ability to filter "Now Playing" games under "On-Hold" & "Plan to Play".
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
 // @version      1.1.1

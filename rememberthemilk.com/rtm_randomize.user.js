@@ -2,6 +2,8 @@
 // @name         RTM - Randomize List
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/www\.rememberthemilk\.com\/home\/.*$/
 // @updated      2015-01-01
 // @version      1.0.0

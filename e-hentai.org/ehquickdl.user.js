@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Enables one-click DL archive downloading (GP/Credits are still required). Supports E-Hentai & EXHentai.
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/g\/.*$/
 // @updated      2013-07-29
 // @version      1.0.3

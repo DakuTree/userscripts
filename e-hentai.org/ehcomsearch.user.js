@@ -3,6 +3,8 @@
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Compacts the search into the topbar, saving vertical space. Supports E-Hentai & EXHentai.
+// @homepageURL  https://github.com/DakuTree/userscripts
+// @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
 // @updated      2014-10-09
@@ -14,7 +16,6 @@
 //Use Stylish
 GM_addStyle("#toppane, #nb {display: none !important;}"); //Hide elements before load
 var domain = (location.host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1].replace('-', '');
-domain = 'exhentai'; //#gitignore
 
 function addJQuery(callback){
 	var script = document.createElement("script");
