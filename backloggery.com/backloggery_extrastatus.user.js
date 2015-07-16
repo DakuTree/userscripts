@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-05-30
-// @version      1.1.1
+// @version      1.1.2
 // ==/UserScript==
 
 var categories = {
@@ -59,7 +59,8 @@ $(document).ready(function() {
 				});
 
 				var b = $(a).next();
-				$(a, b).appendTo('#intro');
+				$(a).appendTo('#intro');
+				$(b).appendTo('#intro');
 			});
 		}
 	});
