@@ -60,12 +60,13 @@
 
 		$result = $mysqli->query("SELECT * FROM {$listtype}list WHERE user_id = $userid"); //Shouldn't need to prepare this as user can't change this data..
 		while($row = mysqli_fetch_array($result)){
-			$css .= "#{$sid}{$row['db_id']} { font-size: 0; content: '{$row['score_precise']}'; }\n"; //We include content here as a way to access the precise score with JS
-			$css .= "#{$sid}{$row['db_id']}:after { content: '{$row['score_precise']}'; font-size: {$fontsize}; }\n";
+			if($row['score_precise'] !== "0.0") {
+				$css .= "#{$sid}{$row['db_id']} { font-size: 0; content: '{$row['score_precise']}'; }\n"; //We include content here as a way to access the precise score with JS
+				$css .= "#{$sid}{$row['db_id']}:after { content: '{$row['score_precise']}'; font-size: {$fontsize}; }\n";
+			}
 		}
 		$mysqli->close();
 	}
 
 	print $css."\n";
 	print "/* $ref */";
-?>
