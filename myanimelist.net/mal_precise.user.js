@@ -10,7 +10,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @updated      2015-08-14
-// @version      2.1.2
+// @version      2.1.3
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -56,7 +56,7 @@ $(document).ready(function() {
 			//Check if series is already on list, if so update precise score
 			if($('input[name=myinfo_submit]').val() == 'Submit'){
 				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
-					$(select).val(data['score_precise'].toString().split(".")[1]);
+					$(select).val(data['score_precise'].toString().split(".")[1] || "0");
 				}).error(function(jqXHR, textStatus, errorThrown) {
 					if(dev == true){
 						alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
