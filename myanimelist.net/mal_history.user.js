@@ -10,8 +10,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
-// @updated      2015-04-17
-// @version      2.1.1
+// @updated      2015-08-14
+// @version      2.1.2
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -20,8 +20,8 @@ var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
 	if(dev == true){
-		if(jQuery.fn.jquery !== '1.8.1'){
-			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.1.');
+		if(jQuery.fn.jquery !== '2.1.4'){
+			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.1.4.');
 		}
 		window.onerror = function(msg, url, linenumber) {
 			alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
@@ -68,7 +68,7 @@ $(document).ready(function() {
 			submit_history({
 				type: self.location.pathname.split('/')[1].split('.')[0], addup: $('[name=myinfo_submit]').val().replace('Submit', 'Update'),
 				db_id: $('[name="aid"], [name="mid"]').attr('value'),
-				title: $('#contentWrapper > h1:first-of-type').contents().filter(function() { return this.nodeType == Node.TEXT_NODE; }).text().trim(),
+				title: $('#contentWrapper > h1:first-of-type [itemprop=name]').text().trim(),
 				status: $('#myinfo_status option:selected').text().trim(),
 				score: get_score(1, null) || null,
 				//anime
@@ -216,13 +216,13 @@ $(document).ready(function() {
 					//TYPE: (STATUS) - (TITLE) (ep|ch). (CHEP_DIGESTED)/(CHEP_COUNT) {|| vol. (VOL_READ)/(VOL_COUNT)} (TIMESTAMP)
 					$('<tr/>').append(
 						$('<td/>', {'class': 'borderClass'}).append(
-							document.createTextNode(row[3]))).append(
+							document.createTextNode(row[3]))).append( //STATUS
 						$('<td/>', {'class': 'borderClass'}).append(
-							$('<a/>', {href: '/'+row[0]+'/'+row[1], text: row[2]})).append(
-							document.createTextNode(' '+(row[0] == 'anime' ? 'ep':'ch')+'. ')).append(
-								$('<strong/>', {text: (row[5]||'?')+'/'+(row[6]||'?')})).append(
-							(row[0] == 'anime' ? '' : ($(document.createTextNode(' || vol. ')).after(
-								$('<strong/>', {text: (row[7]||'?')+'/'+(row[8]||'?')})))))).append(
+							$('<a/>', {href: '/'+row[0]+'/'+row[1], text: row[2]})).append( //TITLE
+							document.createTextNode(' '+(row[0] == 'anime' ? 'ep':'ch')+'. ')).append( //EP/CH
+								$('<strong/>', {text: (row[5]||'?')+'/'+(row[6]||'?')})).append( //EP/CH COUNT
+							(row[0] == 'anime' ? '' : ([$(document.createTextNode(' || vol. ')),
+								$('<strong/>', {text: (row[7]||'?')+'/'+(row[8]||'?')})])))).append(
 						$('<td/>', {'class': 'borderClass', align: 'right', text: row[10]}))
 					.appendTo('#content > div > table > tbody');
 				});

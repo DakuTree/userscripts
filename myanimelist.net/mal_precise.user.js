@@ -9,8 +9,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2015-04-17
-// @version      2.1.1
+// @updated      2015-08-14
+// @version      2.1.2
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -19,8 +19,8 @@ var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
 	if(dev == true){
-		if(jQuery.fn.jquery !== '1.8.1'){
-			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 1.8.1.');
+		if(jQuery.fn.jquery !== '2.1.4'){
+			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.1.4.');
 		}
 		window.onerror = function(msg, url, linenumber) {
 			alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
