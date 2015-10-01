@@ -8,7 +8,7 @@
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
 // @updated      2014-10-09
-// @version      2.0.3
+// @version      2.0.4
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -44,13 +44,12 @@ function main(){
 			
 		}
 
-		var ex_colors = ['#34353b', '#4f535b', '#f1f1f1'];
-		var eh_colors = ['#E3E0D1', '#EDEBDF', '#5C0D11'];
-		var colors = {ehentai: ['#E3E0D1', '#EDEBDF', '#5C0D11'], exhentai: ['#34353b', '#4f535b', '#f1f1f1']};
+		var colors = {ehentai: ['#E3E0D1', '#EDEBDF', '#5C0D11', '#9B4E03'], exhentai: ['#34353b', '#4f535b', '#f1f1f1', '#43464e']};
 
 		var color1 = colors[domain][0],
 		    color2 = colors[domain][1],
 		    color3 = colors[domain][2];
+		    color4 = colors[domain][3];
 
 		$('#toppane').remove();
 		$('<style/>').attr('rel', 'stylesheet').attr('type', 'text/css') //{
@@ -72,8 +71,11 @@ function main(){
 					.navbar li form ul {font-weight: normal;}\
 					.navbar .nopm a {text-decoration: underline; font-size: 8pt; display: inline; border: 0 !important;}\
 					.navbar .nopm a:hover {background-color: transparent;}\
+					.navbar .stdinput:enabled:hover {color: "+color3+"; background: "+color4+";}\
 					.navbar .stdinput, .stdbtn {margin: auto;}\
 					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
+					.navbar .stdbtn:hover {border: 2px outset "+color3+";}\
+					.navbar .stdbtn:enabled:hover {color: "+color3+"; background: "+color4+"; border: 2px outset "+color3+";}\
 					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+"; padding-bottom: 1px; border: 1px solid "+color1+";}\
 					.navbar table.itc {border-spacing: 1px; padding-top: 1px; padding-bottom: 1px;}\
 					.navbar table.itc td {padding: 0;}\
