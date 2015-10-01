@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
-// @updated      2014-10-09
-// @version      2.0.4
+// @updated      2015-10-01
+// @version      2.0.5
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -71,7 +71,7 @@ function main(){
 					.navbar li form ul {font-weight: normal;}\
 					.navbar .nopm a {text-decoration: underline; font-size: 8pt; display: inline; border: 0 !important;}\
 					.navbar .nopm a:hover {background-color: transparent;}\
-					.navbar .stdinput:enabled:hover {color: "+color3+"; background: "+color4+";}\
+					.navbar .stdinput:enabled:hover, .navbar .stdinput:enabled:focus {color: "+color3+"; background: "+color4+";}\
 					.navbar .stdinput, .stdbtn {margin: auto;}\
 					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
 					.navbar .stdbtn:hover {border: 2px outset "+color3+";}\
