@@ -9,8 +9,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2015-08-14
-// @version      2.1.3
+// @updated      2015-10-09
+// @version      2.1.4
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -100,7 +100,7 @@ $(document).ready(function() {
 		type = $('#listType').val();
 
 		//If custom CSS isn't loaded then use AJAX instead.
-		if(/mal_css\/style\.php.*userid/.test($('style').eq(1).text()) === false){ 
+		if(/mal_style\/style\.php.*userid/.test($('style').eq(1).text()) === false){ 
 			$.getJSON(backend+"mp_index.php", {userid: userid, type: type}, function(data) {
 				$.each(data, function(){
 					$('#score' + (type == "anime" ? "val" : "") + $(this)[0]['db_id']).text($(this)[0]['score_precise']);
