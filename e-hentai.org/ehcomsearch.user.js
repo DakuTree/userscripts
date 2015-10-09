@@ -8,7 +8,7 @@
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
 // @updated      2015-10-09
-// @version      2.0.6
+// @version      2.0.7
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -75,7 +75,7 @@ function main(){
 					.navbar .stdinput, .stdbtn {margin: auto;}\
 					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
 					.navbar .stdbtn:hover {border: 2px outset "+color3+";}\
-					.navbar .stdbtn:enabled:hover {color: "+color3+"; background: "+color4+"; border: 2px outset "+color3+";}\
+					.navbar .stdbtn:enabled:hover, .navbar .stdbtn:enabled:active, .navbar .stdbtn:enabled:focus {color: "+color3+"; background: "+color4+"; border: 2px outset "+color3+";}\
 					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+"; padding-bottom: 1px; border: 1px solid "+color1+";}\
 					.navbar table.itc {border-spacing: 1px; padding-top: 1px; padding-bottom: 1px;}\
 					.navbar table.itc td {padding: 0;}\
