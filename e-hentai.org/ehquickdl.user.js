@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/g\/.*$/
-// @updated      2015-10-08
-// @version      1.1.1
+// @updated      2015-10-09
+// @version      1.2.0
 // ==/UserScript==
 
 /******SETTINGS******/
@@ -46,9 +46,15 @@ a.addEventListener('click', function() {
 
 		http.onreadystatechange = function() {
 			if(http.readyState == 4 && http.status == 200) {
-				if(http.responseText.indexOf("Please wait...") !== -1){ //Check if pop-up opened.
+				if(http.responseText == 'Insufficient funds.') {
+					alert('Insufficient funds.');
+				}
+				else if(http.responseText.indexOf("Please wait...") !== -1){ //Check if pop-up opened.
 					var match = /<a href="(http.*?)"/g.exec(http.responseText);
 					window.location.href = match[1] + "?start=1";
+				}
+				else {
+					//WTF?
 				}
 			}
 		}
