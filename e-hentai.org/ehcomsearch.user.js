@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
-// @updated      2015-10-01
-// @version      2.0.5
+// @updated      2015-10-09
+// @version      2.0.6
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -144,7 +144,7 @@ function main(){
 									$('<img/>', {id: "f_cosplay_img", src: "http://ehgt.org/g/c/cosplay"+ (v["f_cosplay"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "cosplay", style: "cursor:pointer",}))).append(
 								$('<td/>').append(
 									$('<input/>', {type: "hidden", name: "f_asianporn", value: v["f_asianporn"], id: "f_asianporn"})).append(
-									$('<img/>', {id: "f_asianporn_img", src: "http://ehgt.org/g/c/asianporn"+ (v["f_doujinshi"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "asianporn", style: "cursor:pointer"}))).append(
+									$('<img/>', {id: "f_asianporn_img", src: "http://ehgt.org/g/c/asianporn"+ (v["f_asianporn"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "asianporn", style: "cursor:pointer"}))).append(
 								$('<td/>').append(
 									$('<input/>', {type: "hidden", name: "f_misc", value: v["f_misc"], id: "f_misc"})).append(
 									$('<img/>', {id: "f_misc_img", src: "http://ehgt.org/g/c/misc"+ (v["f_misc"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "misc", style: "cursor:pointer"}))))).append(
