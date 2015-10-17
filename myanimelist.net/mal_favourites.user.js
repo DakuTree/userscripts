@@ -6,8 +6,9 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
-// @updated      2015-08-14
-// @version      2.1.1
+// @updated      2015-10-17
+// @version      2.2.0
+// @grant        GM_addStyle
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -29,33 +30,44 @@ $(document).ready(function() {
 	    type;
 
 	if(/myanimelist\.net\/(profile)\/.*$/.test(self.location.href)){
+		GM_addStyle("\
+			.user-favorites-outer { max-height: 9999px !important; }\
+			.js-btn-truncate { display: none !important; }\
+		");
+
 		var profileID = $('[name=profileMemId]').val(); //Profile ID is different than userid
 		$.getJSON(backend+"mf_index.php", {userid: profileID}, function(data) {
-			var anime      = $('.profile_leftcell .normal_header:contains("Favorite Anime")').next('table').find('tbody'),
-			    manga      = $('.profile_leftcell .normal_header:contains("Favorite Manga")').next('table').find('tbody'),
-			    characters = $('.profile_leftcell .normal_header:contains("Favorite Characters")').next('table').find('tbody'),
-			    people     = $('.profile_leftcell .normal_header:contains("Favorite People")').next('table').find('tbody');
+			// var anime      = $('.user-favorites h5:contains("Anime") ~ ul'),
+			    // manga      = $('.user-favorites h5:contains("Manga") ~ ul'),
+			    // characters = $('.user-favorites h5:contains("Characters") ~ ul'),
+			    // people     = $('.user-favorites h5:contains("People") ~ ul');
 
 			$.each(data, function(){
 				var type = $(this)[0]['type'];
-				type = (type == 0 ? "anime" : (type == 1 ? "manga" : (type == 2 ? "character" : (type == 6 ? "people" : null))))
+				type = (type == 0 ? "anime" : (type == 1 ? "manga" : (type == 2 ? "character" : (type == 6 ? "people" : null))));
 				var type_id      = $(this)[0]['type_id'],
-				    name         = $(this)[0]['name'];
-				    url          = 'http://myanimelist.net/'+type+'/'+type_id;
-				    preview_url  = $(this)[0]['preview_url'];
-				    series_title = $(this)[0]['series_title'];
+				    name         = $(this)[0]['name'],
+					manga_type   = (name.indexOf("(Manga)") > -1 ? "Manga" : "Novel"),
+				    url          = 'http://myanimelist.net/'+type+'/'+type_id,
+				    preview_url  = $(this)[0]['preview_url'].replace(/v\.jpg$/, '.jpg').replace(/t\.jpg$/, '.jpg'),
+				    series_title = $(this)[0]['series_title'],
 				    series_url   = $(this)[0]['series_url'];
+				name = name.replace(' (Manga)', '').replace(' (Novel)', '');
 
-				$('<tr/>', {style: 'background-color: #D5E4FF'}).append(
-					$('<td/>', {valign: 'top', width: 25, class: 'borderClass'}).append(
-						$('<div/>', {class: 'picSurround'}).append(
-							$('<a/>', {href: 'http://myanimelist.net/'+type+'/'+type_id}).append(
-								$('<img/>', {src: preview_url, border: 0, alt: name}))))
-				).append(
-					$('<td/>', {valign: 'top', class: 'borderClass'}).append(
+				$('<li/>', {class: 'list di-t mb8', style: 'background-color: #D5E4FF'}).append(
+					$('<a/>', {class: 'di-tc image', href: url, style: 'background-image:url(\''+preview_url+'\')'})).append(
+					$('<div/>', {class: 'di-tc va-t pl8 data'}).append(
 						$('<a/>', {href: url, text: name})).append(
-						(type == "character" ? $('<div/>', {style: 'padding-top:2px;'}).append($('<a/>', {href: series_url, class: 'lightLink', text: series_title})) : ""))
-				).appendTo($('.profile_leftcell .normal_header:contains("Favorite '+type.substr(0, 1).toUpperCase()+type.substr(1)+'")').next('table').find('tbody'));
+							(type == "character" ?
+								$('<br/>').add($('<span/>', {class: 'di-ib mt4 fn-grey2'}).append(
+									$('<a/>', {href: series_url, class: 'fn-grey2', text: series_title})
+								))
+							: (type == "manga" ?
+								$('<br/>').add(
+								$('<span/>', {class: 'di-ib mt4 fn-grey2', text: manga_type}))
+							: ""))
+						)
+				).appendTo($('.user-favorites h5:contains("'+type.substr(0, 1).toUpperCase()+type.substr(1)+'") ~ ul'));
 			});
 		});
 	}
@@ -75,7 +87,6 @@ $(document).ready(function() {
 		$('#favOutputExtended').click(function(){
 			var name = $('#contentWrapper > h1:eq(0)').text().replace(/^Ranked #[0-9]+/, '').trim(),
 			    thumbURL = $('tbody tr:eq(0) div:eq(0) img').attr('src');
-			thumbURL = (type == 2 ? thumbURL.replace('.jpg', 't.jpg') : thumbURL.replace('.jpg', 'v.jpg'));
 
 			var params = {
 				userid: userid,
@@ -124,7 +135,7 @@ $(document).ready(function() {
 					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
 					$.get('http://myanimelist.net/profile/'+userName, function(data2) {
 						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
-						userid = data2.match(/name="profileMemId" value="([0-9]+)"/)[1];
+						userid = data2.match(/name="profileMemId" (?:type="hidden")?value="([0-9]+)"/)[1];
 						if(userid) {
 							var expireTime = (14 * 24 * 60 * 60 * 1000); //2 weeks expire
 							unsafeWindow.localStorage.setItem('userid', JSON.stringify({'userid': userid, 'timestamp': (new Date().getTime() + expireTime)}));
