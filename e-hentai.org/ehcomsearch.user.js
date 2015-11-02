@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
-// @updated      2015-10-09
-// @version      2.0.7
+// @updated      2015-11-01
+// @version      2.0.8
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -44,39 +44,48 @@ function main(){
 			
 		}
 
-		var colors = {ehentai: ['#E3E0D1', '#EDEBDF', '#5C0D11', '#9B4E03'], exhentai: ['#34353b', '#4f535b', '#f1f1f1', '#43464e']};
+		var colors = {
+			ehentai:  ['#E3E0D1', '#EDEBDF', '#5C0D11', '#9B4E03', '#F2EFDF', '#5C0D11', '#5C0D11'],
+			exhentai: ['#34353b', '#4f535b', '#000000', '#43464e', '#43464e', '#f1f1f1', '#f1f1f1']
+		};
 
 		var color1 = colors[domain][0],
 		    color2 = colors[domain][1],
-		    color3 = colors[domain][2];
-		    color4 = colors[domain][3];
+		    color3 = colors[domain][2], //borders, also main text color
+		    color4 = colors[domain][3],
+		    color5 = colors[domain][4], //search focus background
+		    color6 = colors[domain][5], //text
+		    color7 = colors[domain][6]; //text:hover:focus
 
 		$('#toppane').remove();
 		$('<style/>').attr('rel', 'stylesheet').attr('type', 'text/css') //{
-			.text(".ido {padding-top: 0 !important;}\
-					#navwrap {width: 90%; min-width: 975px; height: 24px; margin: auto; z-index: 99; position: relative; background-color: "+color2+"; border: 1px solid #000000; margin-bottom: 10px;}\
+			.text("\
+					.ido {padding-top: 0 !important;}\
+					#navwrap {width: 90%; min-width: 975px; height: 24px; margin: auto; z-index: 99; position: relative; background-color: "+color2+"; border: 1px solid "+color3+"; margin-bottom: 10px;}\
 					.navbar {height: 24px; padding: 0; margin: 0; position: absolute; width: 100%;}\
 					.navbar li {height: 24px; width: 150px; float: left; text-align: center; list-style: none; font: normal bold 12px/1.2em Arial, Verdana, Helvetica; padding: 0; margin: 0; background-color: "+color2+";}\
-					.navbar li a {padding: 5px 0; text-decoration: none; color: "+color3+"; display: block; border-right: 1px solid "+color1+";}\
+					.navbar li a {padding: 5px 0; text-decoration: none; color: "+color6+"; display: block; border-right: 1px solid "+color3+";}\
 					.navbar li a:hover {background-color: "+color1+";}\
-					.navbar li ul {display: none; height: auto; margin: 0; margin-left: -1px; padding: 0; border-top: 1px solid "+color1+"; border-left: 1px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;}\
+					.navbar li ul {display: none; height: auto; margin: 0; margin-left: -1px; padding: 0; border-top: 1px solid "+color3+"; border-left: 1px solid "+color3+"; border-right: 1px solid "+color3+"; border-bottom: 1px solid "+color3+";}\
 					.navbar li:hover ul {display: block;}\
 					.navbar li ul {background-color: "+color2+";}\
 					.navbar li:last-child ul {margin-top: 2px; margin-right: -1px;}\
 					.navbar li ul a {border-right: 0;}\
-					.navbar li ul a:not(:first-child) {border-top: 1px solid "+color1+"}\
+					.navbar li ul a:not(:first-child) {border-top: 1px solid "+color3+"}\
 					.navbar li ul a:hover {background-color: "+color1+";}\
 					.navbar li form {margin-top: 0;}\
 					.navbar li form input {margin-right: 1px;}\
 					.navbar li form ul {font-weight: normal;}\
 					.navbar .nopm a {text-decoration: underline; font-size: 8pt; display: inline; border: 0 !important;}\
-					.navbar .nopm a:hover {background-color: transparent;}\
-					.navbar .stdinput:enabled:hover, .navbar .stdinput:enabled:focus {color: "+color3+"; background: "+color4+";}\
+					.navbar .nopm a:hover {background-color: transparent;}\n\
+					.navbar input.stdinput {width: 349px; background-color: "+color1+"; color: "+color6+"; padding: 1px 3px 2px 3px; border: 1px solid "+color3+";}\
+					@-moz-document url-prefix() { .navbar input.stdinput {padding: 1px 3px 1px 3px !important;} }\
+					.navbar input.stdinput {width: 349px; background-color: "+color1+"; color: "+color6+"; padding: 1px 3px 2px 3px; border: 1px solid "+color3+";}\
+					.navbar .stdinput:enabled:hover, .navbar .stdinput:enabled:focus {color: "+color7+"; background: "+color5+";}\
 					.navbar .stdinput, .stdbtn {margin: auto;}\
-					.navbar .stdbtn {height: 19px !important; padding: 1px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color3+";}\
+					.navbar .stdbtn {height: 19px !important; padding: 0px 6px; margin: 3px 1px 0px 1px; background-color: "+color1+"; color: "+color6+";}\
 					.navbar .stdbtn:hover {border: 2px outset "+color3+";}\
-					.navbar .stdbtn:enabled:hover, .navbar .stdbtn:enabled:active, .navbar .stdbtn:enabled:focus {color: "+color3+"; background: "+color4+"; border: 2px outset "+color3+";}\
-					.navbar input.stdinput {width: 350px; background-color: "+color1+"; color: "+color3+"; padding-bottom: 1px; border: 1px solid "+color1+";}\
+					.navbar .stdbtn:enabled:hover, .navbar .stdbtn:enabled:active, .navbar .stdbtn:enabled:focus {color: "+color7+"; background: "+color5+"; border: 2px outset "+color3+";}\
 					.navbar table.itc {border-spacing: 1px; padding-top: 1px; padding-bottom: 1px;}\
 					.navbar table.itc td {padding: 0;}\
 					.navbar #fill {width: calc(100% - 450px - 507px - 16px);}\
@@ -105,15 +114,15 @@ function main(){
 					$('<a/>', {text: "Options", href: location.origin+'/uconfig.php'}))).appendTo(nav);
 		$('<li/>').append(
 			$('<a/>', {text: "HentaiVerse", href: 'http://hentaiverse.org/', onclick: "popUp('http://hentaiverse.org/',1250,720); return false"})).appendTo(nav);
-		$('<li/>', {id: 'fill', style: "border-right: 1px solid "+color1+";"}).appendTo(nav);
-		$('<li/>', {style: "border-right: 1px solid "+color1+"; width: 15px !important; min-width: 15px; max-width: 15px;"}).append(
-            $('<a/>', {href: '#', text: '#', id: 'addenglish'})).appendTo(nav);
+		$('<li/>', {id: 'fill', style: "border-right: 1px solid "+color3+";"}).appendTo(nav);
+		$('<li/>', {style: "border-right: 1px solid "+color3+"; width: 15px !important; min-width: 15px; max-width: 15px;"}).append(
+            $('<a/>', {href: '#', text: '#', id: 'addenglish', style: 'border-right: 0'})).appendTo(nav);
 		$('<li/>', {style: "width: 506px !important; min-width: 506px; max-width: 506px;"}).append(
 			$('<form/>', {action: "http://"+location.hostname, method: "GET"}).append(
 				$('<div/>').append(
 				$('<input/>', {type: "text", name: "f_search", value: v["f_search"], class: "stdinput", onfocus: "if(this.value=='Search Keywords') this.value = '';", size: "50", maxlength: "200"})).append(
-				$('<input/>', {type: "submit", name: "f_apply", value: "Apply Filter", class: "stdbtn"})).append(
-				$('<input/>', {type: "submit", name: "f_clear", value: "Clear Filter", class: "stdbtn", onclick: "top.location.href='http://g.e-hentai.org/'; return false"}))).append(
+				$('<input/>', {type: "submit", name: "f_apply", value: "Apply Filter", class: "stdbtn", style: "width: 70px"})).append(
+				$('<input/>', {type: "submit", name: "f_clear", value: "Clear Filter", class: "stdbtn", style: "width: 70px", onclick: "top.location.href='http://g.e-hentai.org/'; return false"}))).append(
 					$('<ul/>').append(
 						$('<table/>', {class: "itc"}).append(
 							$('<tr/>').append(
@@ -247,7 +256,7 @@ function main(){
 
 		$('#addenglish').on('click', function(e){
 			$('input[name="f_search"]').val(function(i, v){
-				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' ? '' : ' "$1"'));
+				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' || v == '' ? '' : ' "$1"'));
 			});
 		});
 		//TODO: Possibly use jQuery slide?
