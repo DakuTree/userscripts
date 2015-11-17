@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
-// @updated      2015-10-17
-// @version      2.2.0
+// @updated      2015-11-17
+// @version      2.2.1
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -135,7 +135,7 @@ $(document).ready(function() {
 					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
 					$.get('http://myanimelist.net/profile/'+userName, function(data2) {
 						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
-						userid = data2.match(/name="profileMemId" (?:type="hidden")?value="([0-9]+)"/)[1];
+						userid = data2.match(/name="profileMemId"\s*[a-zA-Z="']*\s*value="([0-9]+)">/)[1];
 						if(userid) {
 							var expireTime = (14 * 24 * 60 * 60 * 1000); //2 weeks expire
 							unsafeWindow.localStorage.setItem('userid', JSON.stringify({'userid': userid, 'timestamp': (new Date().getTime() + expireTime)}));
