@@ -10,8 +10,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
-// @updated      2015-08-14
-// @version      2.1.2
+// @updated      2015-10-17
+// @version      2.1.3
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -24,7 +24,11 @@ $(document).ready(function() {
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.1.4.');
 		}
 		window.onerror = function(msg, url, linenumber) {
-			alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+			var text = 'Error message: '+errorMsg+'\nURL: '+url+'\nLine: '+lineNumber+' | Column: '+column+'\nError: '+errorObj;
+			alert(text);
+
+			console.error(text);
+
 			error = true;
 			return true;
 		}
@@ -259,7 +263,7 @@ $(document).ready(function() {
 					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
 					$.get('http://myanimelist.net/profile/'+userName, function(data) {
 						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
-						userid = data.match(/name="profileMemId" value="([0-9]+)"/)[1];
+						userid = data.match(/name="profileMemId"\s*[a-zA-Z="']*\s*value="([0-9]+)">/)[1];
 						if(userid) {
 							var expireTime = (14 * 24 * 60 * 60 * 1000); //2 weeks expire
 							unsafeWindow.localStorage.setItem('userid', JSON.stringify({'userid': userid, 'timestamp': (new Date().getTime() + expireTime)}));
