@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
-// @updated      2015-11-17
-// @version      2.2.2
+// @updated      2015-12-16
+// @version      2.2.3
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -85,7 +85,7 @@ $(document).ready(function() {
 		);
 
 		$('#favOutputExtended').click(function(){
-			var name = $('#contentWrapper h1 span[itemprop=name]').text().trim(),
+			var name = $('#contentWrapper > div h1.h1').text().trim(),
 			    thumbURL = $('tbody tr:eq(0) div:eq(0) img').attr('src');
 
 			var params = {
