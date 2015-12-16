@@ -3,7 +3,22 @@
 	header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate"); #Make sure file isn't cached
 	header("Expires: Wed, 01 Jan 1995 12:00:00 GMT");
 
-	if(empty($_GET['userid']) || empty($_GET['type_id']) || empty($_GET['name']) || empty($_GET['preview_url'])) die('Missing Parameter(s).');
+	if(empty($_GET['userid']) || empty($_GET['type_id']) || empty($_GET['name']) || empty($_GET['preview_url'])) {
+		$missingParams = "Missing Params: ";
+		if(empty($_GET['userid'])) {
+			$missingParams .= "userid ";
+		}
+		if(empty($_GET['type_id'])) {
+			$missingParams .= "type_id ";
+		}
+		if(empty($_GET['name'])) {
+			$missingParams .= "name ";
+		}
+		if(empty($_GET['preview_url'])) {
+			$missingParams .= "preview_url ";
+		}
+		die($missingParams);
+	}
 	if(!ctype_digit($_GET['userid']) || !in_array($_GET['type'], array(0, 1, 2, 6)) || !ctype_digit($_GET['type_id'])) die('Incorrect Parameter(s).');
 	list($userid, $type, $type_id, $name, $preview_url) = array((int) $_GET['userid'], (int) $_GET['type'], (int) $_GET['type_id'], $_GET['name'], 'http://'.$_GET['preview_url']);
 
