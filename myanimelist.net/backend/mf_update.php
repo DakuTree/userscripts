@@ -1,7 +1,7 @@
 <?php
 	header('Access-Control-Allow-Origin: http://myanimelist.net');
-	header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate"); #Make sure file isn't cached
-	header("Expires: Wed, 01 Jan 1995 12:00:00 GMT");
+	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate'); #Make sure file isn't cached
+	header('Expires: Wed, 01 Jan 1995 12:00:00 GMT');
 
 	if(empty($_GET['userid']) || empty($_GET['type_id']) || empty($_GET['name']) || empty($_GET['preview_url'])) {
 		$missingParams = "Missing Params: ";
