@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
 // @grant        GM_addStyle
-// @updated      2015-11-01
-// @version      2.0.8
+// @updated      2016-01-23
+// @version      2.0.9
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // ==/UserScript==
 
@@ -256,7 +256,7 @@ function main(){
 
 		$('#addenglish').on('click', function(e){
 			$('input[name="f_search"]').val(function(i, v){
-				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' || v == '' ? '' : ' "$1"'));
+				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' || v == '' ? '' : ' "$1\$"'));
 			});
 		});
 		//TODO: Possibly use jQuery slide?
