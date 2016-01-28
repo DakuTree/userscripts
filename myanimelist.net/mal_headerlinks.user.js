@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https?:\/\/myanimelist\.net(?:\/?$|\/[^(?:anime|manga)list]+.*$)/
 // @updated      2016-01-28
-// @version      1.0.0
+// @version      1.0.1
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -32,7 +32,7 @@ var profileLinks = $('.header-profile-link + .arrow_box a[href*="/"]');
 
 $('#nav').prepend(
 	$('<li/>', {class: 'small'}).append( //<li>
-		$('<a/>', {href: $(profileLinks[0]).attr('href'), class: 'non-link', text: 'Profile'})).append(
+		$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile'})).append(
 		$('<ul/>', {class: 'wider', style: 'display: none;'}).append( //<ul>
 			$('<li/>').append(
 				$(profileLinks[1]) //Friends
