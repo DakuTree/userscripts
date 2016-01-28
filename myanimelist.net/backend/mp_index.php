@@ -19,7 +19,7 @@
 			$stmt->bind_result($db_id, $score_precise);
 			$stmt->fetch();
 			$json['db_id']         = $db_id;
-			$json['score_precise'] = $score_precise;
+			$json['score_precise'] = ($score_precise == "0" ? "-" : $score_precise);
 
 			$stmt->close();
 		}else{
@@ -33,7 +33,7 @@
 			$stmt->bind_result($r_db_id, $r_score_precise);
 			while ($stmt->fetch()) {
 				$json[$x]['db_id'] = $r_db_id;
-				$json[$x]['score_precise'] = $r_score_precise;
+				$json[$x]['score_precise'] = ($r_score_precise == "0" ? "-" : $r_score_precise);
 				$x++;
 			}
 
