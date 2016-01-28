@@ -5,14 +5,14 @@
 // @description  Various small tweaks to MAL
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php\?id\=).*$/
+// @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php\?(id|q)\=).*$/
 // @updated      2015-11-17
-// @version      1.1.0
+// @version      1.1.2
 // ==/UserScript==
 
 /* Change search to current page type */
 var type = location.href.match(/^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php).*$/)[1];
-$('#topSearchValue').val((type == "anime" ? 0 : (type == "manga" ? 1 : (type == "character" ? 2 : (type == "people" ? 6 : 0)))));
+$('#topSearchValue').val(type);
 
 /* Note type of series in related block */
 //TODO: This needs support for novels
