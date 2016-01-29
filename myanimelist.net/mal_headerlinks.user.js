@@ -8,8 +8,8 @@
 // @include      http://myanimelist.net/*
 // @exclude      http://myanimelist.net/animelist/*
 // @exclude      http://myanimelist.net/mangalist/*
-// @updated      2016-01-28
-// @version      1.0.3
+// @updated      2016-01-29
+// @version      1.0.4
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -17,9 +17,11 @@
 
 if($('.btn-signup').length === 0) {
 	//Re-add list links.
-	var [animeLink, mangaLink] = $('.header-list-button[title=List] + .arrow_box a[href*="list/"]').map(function(){
+	var amLinks = $('.header-list-button[title=List] + .arrow_box a[href*="list/"]').map(function(){
 		return $(this).attr("href");
 	}).get();
+	var animeLink = amLinks[0];
+	var mangaLink = amLinks[1];
 
 	['Anime', 'Manga'].forEach(function(type) {
 		$('#nav > li:contains("'+type+'") > ul').prepend(
