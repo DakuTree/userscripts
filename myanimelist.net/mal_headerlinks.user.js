@@ -8,8 +8,9 @@
 // @include      http://myanimelist.net/*
 // @exclude      http://myanimelist.net/animelist/*
 // @exclude      http://myanimelist.net/mangalist/*
+// @grant        GM_addStyle
 // @updated      2016-01-31
-// @version      1.0.7
+// @version      1.0.8
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -36,10 +37,11 @@ if($('.btn-signup').length === 0) {
 	var profileLinks = $('.header-profile-link + .arrow_box a[href*="/"]');
 	var newAlerts    = parseInt($('.header-message > .has-unread').attr('data-unread') || 0) + parseInt($('.header-notification > .has-unread').attr('data-unread') || 0) + parseInt($('.fl-r.link-count').text().replace(/\(|\)/g, '') || 0);
 
+	GM_addStyle("#profileDropdown > li { width: 140px !important; }"); //This is required to avoid "My Reccomendations" going onto a newline.
 	$('#nav').prepend(
 		$('<li/>', {class: (!newAlerts ? 'small' : '')}).append( //<li>
 			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile' + (newAlerts ? " ["+newAlerts.toString()+"]" : "")})).append(
-			$('<ul/>', {class: 'wider', style: 'display: none;'}).append( //<ul>
+			$('<ul/>', {id: 'profileDropdown', class: 'wider', style: 'display: none;'}).append( //<ul>
 				$('<li/>').append(
 					$('<a/>', {href: 'http://myanimelist.net/panel.php', text: 'My Panel'}) //Panel
 				)
@@ -69,7 +71,7 @@ if($('.btn-signup').length === 0) {
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/myrecommendations.php', text: 'Reccomendations'}) //Reccomendations
+					$('<a/>', {href: 'http://myanimelist.net/myrecommendations.php', text: 'My Reccomendations'}) //Reccomendations
 				)
 			).append(
 				$('<li/>').append(
