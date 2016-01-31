@@ -8,8 +8,8 @@
 // @include      http://myanimelist.net/*
 // @exclude      http://myanimelist.net/animelist/*
 // @exclude      http://myanimelist.net/mangalist/*
-// @updated      2016-01-29
-// @version      1.0.4
+// @updated      2016-01-31
+// @version      1.0.5
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -40,6 +40,18 @@ if($('.btn-signup').length === 0) {
 			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile'})).append(
 			$('<ul/>', {class: 'wider', style: 'display: none;'}).append( //<ul>
 				$('<li/>').append(
+					$('<a/>', {href: 'http://myanimelist.net/panel.php', text: 'My Panel'}) //Panel
+				)
+			).append(
+				$('<li/>').append(
+					$('<a/>', {href: 'http://myanimelist.net/mymessages.php', text: 'Messages'}) //Messages
+				)
+			).append(
+				$('<li/>').append(
+					$('<a/>', {href: 'http://myanimelist.net/notifications', text: 'Notifications'}) //Notifications
+				)
+			).append(
+				$('<li/>').append(
 					$(profileLinks[1]) //Friends
 				)
 			).append(
@@ -61,6 +73,10 @@ if($('.btn-signup').length === 0) {
 			).append(
 				$('<li/>').append(
 					$(profileLinks[6]) //Account Settings
+				)
+			).append(
+				$('<li/>').append(
+					$('<a/>', {href: 'http://myanimelist.net/logout.php', text: 'Logout'}) //Logout
 				)
 			)
 		)
