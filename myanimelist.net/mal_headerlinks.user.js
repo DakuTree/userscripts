@@ -9,7 +9,7 @@
 // @exclude      http://myanimelist.net/animelist/*
 // @exclude      http://myanimelist.net/mangalist/*
 // @updated      2016-01-31
-// @version      1.0.5
+// @version      1.0.6
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -34,45 +34,46 @@ if($('.btn-signup').length === 0) {
 
 	//Re-add profile tab + links
 	var profileLinks = $('.header-profile-link + .arrow_box a[href*="/"]');
+	var newAlerts    = parseInt($('.header-message > .has-unread').attr('data-unread') || 0) + parseInt($('.header-notification > .has-unread').attr('data-unread') || 0) + parseInt($('.fl-r.link-count').text().replace(/\(|\)/g, '') || 0);
 
 	$('#nav').prepend(
-		$('<li/>', {class: 'small'}).append( //<li>
-			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile'})).append(
+		$('<li/>', {class: (!newAlerts ? 'small' : '')}).append( //<li>
+			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile' + (newAlerts ? " ["+newAlerts.toString()+"]" : "")})).append(
 			$('<ul/>', {class: 'wider', style: 'display: none;'}).append( //<ul>
 				$('<li/>').append(
 					$('<a/>', {href: 'http://myanimelist.net/panel.php', text: 'My Panel'}) //Panel
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/mymessages.php', text: 'Messages'}) //Messages
+					$('<a/>', {href: 'http://myanimelist.net/mymessages.php', text: 'Messages' + ($('.header-message > .has-unread').length ? " ["+$('.header-message > .has-unread').attr('data-unread')+"]" : "")}) //Messages
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/notifications', text: 'Notifications'}) //Notifications
+					$('<a/>', {href: 'http://myanimelist.net/notifications', text: 'Notifications' + ($('.header-notification > .has-unread').length ? " ["+$('.header-notification > .has-unread').attr('data-unread')+"]" : "")}) //Notifications
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[1]) //Friends
+					$('<a/>', {href: 'http://myanimelist.net/myfriends.php', text: 'Friends' + ($('.fl-r.link-count').length ? " ["+$('.fl-r.link-count').text().replace(/\(|\)/g, '')+"]" : "")}) //Friends
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[2]) //Clubs
+					$('<a/>', {href: 'http://myanimelist.net/clubs.php?action=myclubs', text: 'Clubs'}) //Clubs
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[3]) //Blog Posts
+					$('<a/>', {href: 'http://myanimelist.net/blog/DakuTree', text: 'Blog Posts'}) //Blog Posts
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[4]) //Reviews
+					$('<a/>', {href: 'http://myanimelist.net/myreviews.php', text: 'Reviews'}) //Reviews
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[5]) //Reccomendations
+					$('<a/>', {href: 'http://myanimelist.net/myrecommendations.php', text: 'Reccomendations'}) //Reccomendations
 				)
 			).append(
 				$('<li/>').append(
-					$(profileLinks[6]) //Account Settings
+					$('<a/>', {href: 'http://myanimelist.net/editprofile.php?go=myoptions', text: 'Account Settings'}) //Account Settings
 				)
 			).append(
 				$('<li/>').append(
