@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https?:\/\/www\.amazon\.(?:co(?:m|\.(?:uk|jp))|es|de|it|fr|ca|cn)\/gp\/(?:your-account|css)?\/?order-history.*orderFilter\=open.*$/
 // @updated      2016-01-31
-// @version      1.0.0
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
+// @version      1.0.1
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
