@@ -61,7 +61,7 @@ if($('.btn-signup').length === 0) {
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/blog/DakuTree', text: 'My Blog Posts'}) //Blog Posts
+					$('<a/>', {href: 'http://myanimelist.net/blog/'+$(profileLinks[0]).attr('href').replace(/.*\/(.*)$/, "$1"), text: 'My Blog Posts'}) //Blog Posts
 				)
 			).append(
 				$('<li/>').append(
@@ -69,7 +69,7 @@ if($('.btn-signup').length === 0) {
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/myrecommendations.php', text: 'My Reccomendations'}) //Reccomendations
+					$('<a/>', {href: 'http://myanimelist.net/myrecommendations.php', text: 'Reccomendations'}) //Reccomendations
 				)
 			).append(
 				$('<li/>').append(
