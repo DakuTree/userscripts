@@ -11,7 +11,7 @@
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
 // @updated      2016-01-31
-// @version      1.0.9
+// @version      1.0.10
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -40,8 +40,8 @@ if($('.btn-signup').length === 0) {
 
 	GM_addStyle("#profileDropdown > li { width: 140px !important; }"); //This is required to avoid "My Reccomendations" going onto a newline.
 	$('#nav').prepend(
-		$('<li/>', {class: (!newAlerts ? 'small' : '')}).append( //<li>
-			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile' + (newAlerts ? " ["+newAlerts.toString()+"]" : "")})).append(
+		$('<li/>', {class: (!newAlerts ? 'small' : ''), style: 'width: auto !important;'}).append( //<li>
+			$('<a/>', {href: $(profileLinks[0]).attr('href'), /*class: 'non-link',*/ text: 'Profile' + (newAlerts ? " ["+newAlerts.toString()+"]" : ""), style: 'padding-right: 9px;'})).append(
 			$('<ul/>', {id: 'profileDropdown', class: 'wider', style: 'display: none;'}).append( //<ul>
 				$('<li/>').append(
 					$('<a/>', {href: 'http://myanimelist.net/panel.php', text: 'My Panel'}) //Panel
