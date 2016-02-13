@@ -7,9 +7,9 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @grant        GM_addStyle
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
 // @updated      2016-02-13
-// @version      1.0.0
+// @version      1.0.1
 // ==/UserScript==
 
 var stealthSave = true;
