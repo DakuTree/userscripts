@@ -6,9 +6,10 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
-// @updated      2015-12-16
-// @version      2.2.3
+// @updated      2016-02-13
+// @version      2.2.4
 // @grant        GM_addStyle
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
