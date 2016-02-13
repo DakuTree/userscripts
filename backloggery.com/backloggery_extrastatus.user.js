@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @updated      2015-12-02
-// @version      1.2.0
+// @version      1.2.1
 // ==/UserScript==
 
 var defaultCategories = {
@@ -102,6 +102,7 @@ $(document).ready(function() {
 
 				//remove the tag from the description if at start or end. keep otherwise (to avoid problems)
 				$(a).children(':eq(4)').text(function() {
+					$(this).parent().attr('data-text', $(this).text().trim());
 					//Check: Is there a better way to do this regex? Lots of duplication here..
 					var re = new RegExp('(?:^[\\s]*\\['+key+'\\][\\s]*|[\\s]*\\['+key+'\\][\\s]*$)','i');
 					return $(this).text().replace(re, '');
