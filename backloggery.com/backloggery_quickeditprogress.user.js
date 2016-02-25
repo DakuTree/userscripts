@@ -8,8 +8,8 @@
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
-// @updated      2016-02-13
-// @version      1.0.1
+// @updated      2016-02-25
+// @version      1.0.2
 // ==/UserScript==
 
 var stealthSave = true;
@@ -88,6 +88,8 @@ $(function() {
 		$(a).click(function() {
 			$(textDiv).toggle();
 			$(textDiv).find('+ div').toggle();
+
+			$(textDiv).find('+ div > textarea').focus();
 
 			return false;
 		});
