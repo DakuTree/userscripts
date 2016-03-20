@@ -9,9 +9,9 @@
 // @exclude      http://myanimelist.net/animelist/*
 // @exclude      http://myanimelist.net/mangalist/*
 // @grant        GM_addStyle
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
-// @updated      2016-02-05
-// @version      1.0.11
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
+// @updated      2016-03-09
+// @version      1.0.12
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */

@@ -6,8 +6,9 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php\?(id|q)\=).*$/
-// @updated      2015-11-17
+// @updated      2016-03-09
 // @version      1.1.2
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
 /* Change search to current page type */

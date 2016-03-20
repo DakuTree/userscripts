@@ -6,10 +6,10 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character|profile)(\/|\.php\?id\=).*$/
-// @updated      2016-02-13
-// @version      2.2.4
+// @updated      2016-03-09
+// @version      2.2.5
 // @grant        GM_addStyle
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
 var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
@@ -17,8 +17,8 @@ var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
 	if(dev == true){
-		if(jQuery.fn.jquery !== '2.1.4'){
-			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.1.4.');
+		if(jQuery.fn.jquery !== '2.2.1'){
+			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.2.1.');
 		}
 		window.onerror = function(msg, url, linenumber) {
 			alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
