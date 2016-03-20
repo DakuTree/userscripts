@@ -6,7 +6,7 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
-// @updated      2015-12-02
+// @updated      2016-03-09
 // @version      1.2.1
 // ==/UserScript==
 
@@ -97,6 +97,7 @@ $(document).ready(function() {
 			);
 
 			//move elements containing key to bottom of list
+			var div = $('<div/>', {class: 'es-games'});
 			$(elements).each(function(){
 				var a = $(this);
 
@@ -109,10 +110,57 @@ $(document).ready(function() {
 				});
 
 				var b = $(a).next();
-				$(a).appendTo('#intro');
-				$(b).appendTo('#intro');
+
+
+				var g_div = $('<div/>', {class: 'es-game'});
+
+				$(a).appendTo(g_div);
+				$(b).appendTo(g_div);
+
+				$(g_div).appendTo(div);
 			});
+			$(div).appendTo('#intro');
 		}
 	});
-    $('<style/>').attr('rel', 'stylesheet').attr('type', 'text/css').text(".hd-desc {display: block; margin-bottom: 5px;}").appendTo('head');
+
+	//Stick non-tagged games in divs.
+	var div = $('<div/>', {class: 'es-games'});
+	$('#intro > .npgame').each(function(){
+		var a = $(this);
+		var b = $(a).next();
+
+
+		var g_div = $('<div/>', {class: 'es-game'});
+
+		$(a).appendTo(g_div);
+		$(b).appendTo(g_div);
+
+		$(g_div).appendTo(div);
+	});
+	$(div).insertAfter($('#intro > h1:first-of-type + .hd-desc') || $('#intro > h1:first-of-type'));
+
+	{
+		jQuery.fn.sortElements=(function(){var sort=[].sort;return function(comparator,getSortable){getSortable=getSortable||function(){return this;};var placements=this.map(function(){var sortElement=getSortable.call(this),parentNode=sortElement.parentNode,nextSibling=parentNode.insertBefore(document.createTextNode(''),sortElement.nextSibling);return function(){if(parentNode===this){throw new Error("You can't sort elements if any one is a descendant of another.");}
+		parentNode.insertBefore(this,nextSibling);parentNode.removeChild(nextSibling);};});return sort.call(this,comparator).each(function(i){placements[i].call(getSortable.call(this));});};})();
+
+		$('.es-games').each(function() {
+			$(this).find('.es-game').sortElements(function(a,b) {
+				var a_v = $(a).find('> .npgame > div:eq(2)').text().trim();
+				var b_v = $(b).find('> .npgame > div:eq(2)').text().trim();
+
+				if(a_v > b_v) {
+					return 1;
+				} else if(a_v < b_v) {
+					return -1;
+				} else {
+					var a_v2 = $(a).find('> .npgame > div:eq(3)').text().trim();
+					var b_v2 = $(b).find('> .npgame > div:eq(3)').text().trim();
+
+					return (a_v2 > b_v2) ? 1 : (a_v2 < b_v2) ? -1 : 0;
+				}
+			});
+		});
+	}
+
+	$('<style/>').attr('rel', 'stylesheet').attr('type', 'text/css').text(".hd-desc {display: block; margin-bottom: 5px;}").appendTo('head');
 });
