@@ -9,8 +9,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2016-03-09
-// @version      2.2.2
+// @updated      2016-04-05
+// @version      2.2.3
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
@@ -55,7 +55,7 @@ $(document).ready(function() {
 			//db_id should be set on 3/4 possible pages (anime add/update & manga update)
 
 			//Check if series is already on list, if so update precise score
-			if($('input[name=myinfo_submit]').val() == 'Submit'){
+			if($('input[name=myinfo_submit]').val() == 'Update'){
 				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
 					$(select).val(data['score_precise'].toString().split(".")[1] || "0");
 				}).error(function(jqXHR, textStatus, errorThrown) {
