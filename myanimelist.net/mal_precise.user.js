@@ -10,7 +10,7 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @updated      2016-04-05
-// @version      2.2.3
+// @version      2.2.4
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
@@ -19,7 +19,7 @@ var fontsize = "9px"; //Change this if you are using a non-standard font-size (T
 var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
-	if(dev == true){
+	if(dev === true){
 		if(jQuery.fn.jquery !== '2.2.1'){
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.2.1.');
 		}
@@ -27,14 +27,14 @@ $(document).ready(function() {
 			alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
 			error = true;
 			return true;
-		}
+		};
 	}
 
 	var userid = (document.cookie.match('(^|; )(A|Y)=([^;]*)')||0)[3] || find_userid() || 0,
 	    type;
 
 	if(/myanimelist\.net\/(anime|manga)\/[0-9]+/.test(self.location.href) || /myanimelist\.net\/(anime|manga)\.php\?id\=.*/.test(self.location.href)){
-		if(userid == 0) return false;
+		if(userid === 0) return false;
 		type = self.location.pathname.split('/')[1].split('.')[0];
 
 		//Create precise scores select
@@ -59,7 +59,7 @@ $(document).ready(function() {
 				$.getJSON(backend+"mp_index.php", {userid: userid, type: type, db_id: db_id}, function(data) {
 					$(select).val(data['score_precise'].toString().split(".")[1] || "0");
 				}).error(function(jqXHR, textStatus, errorThrown) {
-					if(dev == true){
+					if(dev === true){
 						alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
 					}
 				});
@@ -97,11 +97,11 @@ $(document).ready(function() {
 		}
 	}
 	else if(/myanimelist\.net\/(anime|manga)list\/.*/.test(self.location.href)){
-		userid = $('#listUserId').val(),
+		userid = $('#listUserId').val();
 		type = $('#listType').val();
 
 		//If custom CSS isn't loaded then use AJAX instead.
-		if(/mal_style\/style\.php.*userid/.test($('style').eq(1).text()) === false){ 
+		if(/mal_style\/style\.php.*userid/.test($('style').eq(1).text()) === false){
 			$.getJSON(backend+"mp_index.php", {userid: userid, type: type}, function(data) {
 				$.each(data, function(){
 					$('#score' + (type == "anime" ? "val" : "") + $(this)[0]['db_id']).text($(this)[0]['score_precise']);
@@ -132,7 +132,7 @@ $(document).ready(function() {
 		});
 	}
 	else if(/myanimelist\.net\/panel\.php\?go\=(edit|add).*/.test(self.location.href) || /myanimelist\.net\/editlist\.php\?type\=(anime|manga).*/.test(self.location.href)){
-		if(userid == 0) return false;
+		if(userid === 0) return false;
 		type = $('#animeid, #mangaid').attr('id').substr(0, 5);
 
 		//Create precise scores select
@@ -159,7 +159,7 @@ $(document).ready(function() {
 					$('select[name=score]').after(' . ');
 					$('select[name=score]').css('padding', '1px 0px 1px 0px');
 				}).error(function(jqXHR, textStatus, errorThrown) {
-					if(dev == true){
+					if(dev === true){
 						alert("Error: "+textStatus+"\nIncoming Text: "+jqXHR.responseText);
 					}
 				});
