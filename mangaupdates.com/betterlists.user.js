@@ -8,104 +8,21 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?.*)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-04-22
-// @version      1.0.0
+// @updated      2016-04-23
+// @version      1.1.0
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
+// @require      https://github.com/eligrey/FileSaver.js/raw/62d219a0fac54b94cd4f230e7bfc55aa3f8dcfa4/FileSaver.min.js
 // ==/UserScript==
 /* jshint -W097, browser:true, devel:true */
-/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false */
+/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false, saveAs:false */
 'use strict';
 
 //Beware! Messy code ahead!
 $(document).ready(function() {
 	if(/mangaupdates\.com\/mylist.html(\?.*)?/.test(location.href)) {
-		//Temp remove rating / Average
-		$('#list_table > tbody > tr > td:nth-of-type(5), #list_table > tbody > tr > th:nth-of-type(5)').remove();
-		$('#list_table > tbody > tr > td:nth-of-type(4), #list_table > tbody > tr > th:nth-of-type(4)').remove();
-
-		//Create "latest release" column header.
-		$('#list_table > tbody > tr:eq(1) ').append(
-			$('<th/>', {class: 'text', text: 'Latest Release', style: 'text-align: center'})
-		);
-		$('.lrow').each(function() {
-			var id              = $(this).find('a:eq(0)').removeAttr('title').attr('href').replace(/^.*id=([0-9]+)$/, '$1');
-
-			var colStatus = $(this).find('> td:nth-of-type(3)');
-			var colLatest = $(this).find('> td:nth-of-type(4)');
-
-			var currentChapterE = colStatus;
-			var currentChapterN = currentChapterE.text().replace(/[^0-9]+/, '');
-			var latestChapterE  = $(this).find('.newlist a').text(function() { return $(this).text().replace(/[^0-9a-zA-Z]*/g, ''); });  //FIXME: This probably doesn't work with .5 chapters
-			var latestChapterN  = latestChapterE.text().replace(/[^0-9]+/, '') || currentChapterE.text();
-
-			//If series is complete, make title bold.
-			checkComplete(id, latestChapterN, this); //FIXME: The entire way this method works feels extremely bad. Remake.
-
-			//Remove "Your Status" styling & set new styling.
-			$(colStatus).removeClass().removeAttr('id').css('text-align', 'center');
-
-			//Re-create your status column.
-			$(colStatus).html(function() {
-				var currentChapter = $(this).find('a:eq(2)').text().replace(/[^0-9]*/, ''); //FIXME: This probably doesn't work with .5 chapters
-				return 'c'+currentChapter;
-			});
-
-			//
-			$(colStatus).click(function(e) {
-				if($(this).find('input').length === 0) {
-					var chapterN = getInt($(this).text());
-
-					var col = $(this);
-
-					$(col).html('').append(
-						$('<input/>', {type: 'text', id: 'ch_update', value: chapterN, style: 'text-align: center; width: 30px;'}).keypress(function(e) {
-							var key = e.which;
-							if(key == 13) { //enter
-								sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+$(this).val());
-								$(col).html('c'+$(this).val());
-
-								return false;
-							}
-						})
-					);
-					$(col).find('input').focus();
-					$(col).find('input')[0].setSelectionRange(99, 99); //Make sure focus is at end of string
-				}
-			});
-
-			//Append latest chapter.
-			$(this).append(
-				$('<td/>', {class: 'text', style: 'text-align: center'}).append(
-					(latestChapterE.length > 0 ? latestChapterE.css('font-weight', 'bold') : currentChapterE.text())
-				)
-			);
-
-			//If latest chapter is different, append a link to update status to latest.
-			if(latestChapterE.length > 0) {
-				$(this).append(
-					$('<td/>').append(
-						$('<a/>', {
-							href: '#',
-							text: '@',
-							title: 'I\'ve read the latest chapter!'
-						}).click(function() {
-							var parentRow = $(this).parent().parent();
-
-							//Update chapter.
-							sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+latestChapterN);
-
-							//Update row info.
-							$(parentRow).find('td:eq(2)').text(latestChapterE.text());
-							$(parentRow).find('td:eq(3)').html(function() { return $(this).text(); } );
-							$(parentRow).find('td:eq(4)').remove();
-
-							return false;
-						})
-					)
-				);
-			}
-		});
-
+		setupList();
+		//setupImport();
+		setupExport();
 
 	}
 	else if(/mangaupdates\.com\/series.html\?id=.*/.test(location.href)) {
@@ -200,6 +117,7 @@ $(document).ready(function() {
 			markComplete(ele, manga.complete);
 		}
 	}
+
 	function markComplete(ele, complete) {
 		if(complete === 1) {
 			$(ele).find('td:nth-child(2)')
@@ -210,5 +128,117 @@ $(document).ready(function() {
 
 	function getInt(str) {
 		return str.replace(/[^0-9]+/g, '');
+	}
+
+	function setupList() {
+		//Temp remove rating / Average
+		$('#list_table > tbody > tr > td:nth-of-type(5), #list_table > tbody > tr > th:nth-of-type(5)').remove();
+		$('#list_table > tbody > tr > td:nth-of-type(4), #list_table > tbody > tr > th:nth-of-type(4)').remove();
+
+		//Create "latest release" column header.
+		$('#list_table > tbody > tr:eq(1) ').append(
+			$('<th/>', {class: 'text', text: 'Latest Release', style: 'text-align: center'})
+		);
+		$('.lrow').each(function() {
+			var id              = $(this).find('a:eq(0)').removeAttr('title').attr('href').replace(/^.*id=([0-9]+)$/, '$1');
+
+			var colStatus = $(this).find('> td:nth-of-type(3)');
+			var colLatest = $(this).find('> td:nth-of-type(4)');
+
+			var currentChapterE = colStatus;
+			var currentChapterN = currentChapterE.text().replace(/[^0-9]+/, '');
+			var latestChapterE  = $(this).find('.newlist a').text(function() { return $(this).text().replace(/[^0-9a-zA-Z]*/g, ''); });  //FIXME: This probably doesn't work with .5 chapters
+			var latestChapterN  = latestChapterE.text().replace(/[^0-9]+/, '') || currentChapterE.text();
+
+			//If series is complete, make title bold.
+			checkComplete(id, latestChapterN, this); //FIXME: The entire way this method works feels extremely bad. Remake.
+
+			//Remove "Your Status" styling & set new styling.
+			$(colStatus).removeClass().removeAttr('id').css('text-align', 'center');
+
+			//Re-create your status column.
+			$(colStatus).html(function() {
+				var currentChapter = $(this).find('a:eq(2)').text().replace(/[^0-9]*/, ''); //FIXME: This probably doesn't work with .5 chapters
+				return 'c'+currentChapter;
+			});
+
+			//
+			$(colStatus).click(function(e) {
+				if($(this).find('input').length === 0) {
+					var chapterN = getInt($(this).text());
+
+					var col = $(this);
+
+					$(col).html('').append(
+						$('<input/>', {type: 'text', id: 'ch_update', value: chapterN, style: 'text-align: center; width: 30px;'}).keypress(function(e) {
+							var key = e.which;
+							if(key == 13) { //enter
+								sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+$(this).val());
+								$(col).html('c'+$(this).val());
+
+								return false;
+							}
+						})
+					);
+					$(col).find('input').focus();
+					$(col).find('input')[0].setSelectionRange(99, 99); //Make sure focus is at end of string
+				}
+			});
+
+			//Append latest chapter.
+			$(this).append(
+				$('<td/>', {class: 'text', style: 'text-align: center'}).append(
+					(latestChapterE.length > 0 ? latestChapterE.css('font-weight', 'bold') : currentChapterE.text())
+				)
+			);
+
+			//If latest chapter is different, append a link to update status to latest.
+			if(latestChapterE.length > 0) {
+				$(this).append(
+					$('<td/>').append(
+						$('<a/>', {
+							href: '#',
+							text: '@',
+							title: 'I\'ve read the latest chapter!'
+						}).click(function() {
+							var parentRow = $(this).parent().parent();
+
+							//Update chapter.
+							sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+latestChapterN);
+
+							//Update row info.
+							$(parentRow).find('td:eq(2)').text(latestChapterE.text());
+							$(parentRow).find('td:eq(3)').html(function() { return $(this).text(); } );
+							$(parentRow).find('td:eq(4)').remove();
+
+							return false;
+						})
+					)
+				);
+			}
+		});
+	}
+
+	function setupExport() {
+		$('a[title="Export this list"]').replaceWith(
+			$('<a/>', {href: '#', title: 'JSON Export', text: 'JSON Export'}).click(function() {
+				exportData();
+				return false;
+			})
+		);
+	}
+	function exportData() {
+		var mangaList = [];
+		$('.lrow').each(function() {
+			var manga = {
+				id:             $(this).attr('id').substring(1),
+				title:          $(this).find('> td:eq(1) u').text().trim(),
+				currentChapter: $(this).find('> td:eq(2)').text().trim().substring(1)
+			};
+			mangaList.push(manga);
+		});
+
+		var blob = new Blob([JSON.stringify(mangaList, null, "\t")], {type: "application/json;charset=utf-8"});
+		saveAs(blob, "MU-"+new Date().toJSON().slice(0,10)+".json");
 	}
 });
