@@ -10,8 +10,8 @@
 // @exclude      http://myanimelist.net/mangalist/*
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
-// @updated      2016-03-09
-// @version      1.0.12
+// @updated      2016-04-28
+// @version      1.0.13
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -52,7 +52,7 @@ if($('.btn-signup').length === 0) {
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'http://myanimelist.net/notifications', text: 'Notifications' + ($('.header-notification > .has-unread').length ? " ["+$('.header-notification > .has-unread').attr('data-unread')+"]" : "")}) //Notifications
+					$('<a/>', {href: 'http://myanimelist.net/notification', text: 'Notifications' + ($('.header-notification > .has-unread').length ? " ["+$('.header-notification > .has-unread').attr('data-unread')+"]" : "")}) //Notifications
 				)
 			).append(
 				$('<li/>').append(
