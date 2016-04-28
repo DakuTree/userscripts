@@ -1,0 +1,5 @@
+<Files config.php>
+order allow,deny
+deny from all
+satisfy all
+</Files>
