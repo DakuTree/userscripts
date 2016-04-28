@@ -8,20 +8,22 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?.*)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-04-23
-// @version      1.1.0
+// @updated      2016-04-28
+// @version      1.2.0
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @require      https://github.com/eligrey/FileSaver.js/raw/62d219a0fac54b94cd4f230e7bfc55aa3f8dcfa4/FileSaver.min.js
+// @require      https://github.com/imaya/zlib.js/raw/068df2dee15c18d38d9dff433538ef59bbbb55fe/bin/zlib_and_gzip.min.js
+// @grant        GM_addStyle
 // ==/UserScript==
 /* jshint -W097, browser:true, devel:true */
-/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false, saveAs:false */
+/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false, saveAs:false, Zlib:false, Promise:false, addReading:false */
 'use strict';
 
 //Beware! Messy code ahead!
 $(document).ready(function() {
 	if(/mangaupdates\.com\/mylist.html(\?.*)?/.test(location.href)) {
 		setupList();
-		//setupImport();
+		setupImport();
 		setupExport();
 
 	}
@@ -131,6 +133,10 @@ $(document).ready(function() {
 	}
 
 	function setupList() {
+		//Use CSS to set row colors since we'll be moving them about.
+		GM_addStyle("#list_table > tbody > tr:nth-child(odd):not(:nth-child(0)):not(:nth-child(1)) { background-color: #E4E7EB; }");
+		$('.lrow.alt').removeClass('alt');
+
 		//Temp remove rating / Average
 		$('#list_table > tbody > tr > td:nth-of-type(5), #list_table > tbody > tr > th:nth-of-type(5)').remove();
 		$('#list_table > tbody > tr > td:nth-of-type(4), #list_table > tbody > tr > th:nth-of-type(4)').remove();
@@ -139,6 +145,8 @@ $(document).ready(function() {
 		$('#list_table > tbody > tr:eq(1) ').append(
 			$('<th/>', {class: 'text', text: 'Latest Release', style: 'text-align: center'})
 		);
+
+		var firstRow = $('#list_table > tbody > tr:nth-child(3)');
 		$('.lrow').each(function() {
 			var id              = $(this).find('a:eq(0)').removeAttr('title').attr('href').replace(/^.*id=([0-9]+)$/, '$1');
 
@@ -215,6 +223,11 @@ $(document).ready(function() {
 						})
 					)
 				);
+
+				//Move chapters with new chapters to top of list.
+				firstRow.before(
+					$(this)
+				);
 			}
 		});
 	}
@@ -241,4 +254,147 @@ $(document).ready(function() {
 		var blob = new Blob([JSON.stringify(mangaList, null, "\t")], {type: "application/json;charset=utf-8"});
 		saveAs(blob, "MU-"+new Date().toJSON().slice(0,10)+".json");
 	}
+
+	function setupImport() {
+		$('<input/>', {type: 'file', id: 'mal_input', text: 'MAL Import', width: '84px'})
+			.change(function() { importMal(this); })
+			.insertAfter('a[title="Export this list"]')
+			.after($('<span/>', {id: 'import_status'}))
+			.before("] | [MAL Import: "); //Re-add the closing bracket of JSON export
+
+		//Avoid pushing file on options update.
+		$('input[name=update_options]').submit(function() {
+			$('#mal_input').remove();
+		});
+
+		//Allow space for reload link
+		$('form[name=seriesForm] > .low_col1').css('width', '65%');
+		$('form[name=seriesForm] > .low_col2').css('width', '35%');
+
+		//Info block
+		$('form[name=seriesForm] > .low_col1').append(
+			$('<div/>', {id: 'info_block'}).append(
+				$('<ul/>')
+			)
+		);
+	}
+	function importMal(input) {
+		var files = input.files;
+		if(files && files[0]) {
+			var file = files[0];
+
+			var xml;
+			switch(file.name.match(/\..*$/)[0]) {
+				case '.xml.gz':
+					importMalGz(file);
+					break;
+				case '.xml':
+					//Some people might have already extracted the .xml file.
+					importMalXml(file);
+					break;
+				default:
+					alert('"'+file.name+'" has an invalid ext');
+					break;
+			}
+		}
+	}
+	function importMalXml(file) {
+		var reader = new FileReader();
+		reader.onload = function (e) {
+			importMalXmlString(e.target.result);
+		};
+		reader.readAsText(file);
+	}
+	function importMalXmlString(xmlString) {
+		var xmlObject    = $($.parseXML(xmlString)).find('myanimelist'),
+			myInfo       = xmlObject.find('> myInfo'),
+			manga        = xmlObject.find('> manga'),
+			currentManga = $('tr[id^=r]').map(function() { return $(this).attr('id').substring(1); });
+
+		manga = manga.filter(function() {
+			return $(this).find('> my_status').text() == 'Reading';
+		});
+
+		var time = 750;
+		manga.each(function(i) {
+			var id             = $(this).find('manga_mangadb_id').text(),
+				title          = $(this).find('manga_title').text(),
+				currentChapter = $(this).find('my_read_chapters').text();
+
+			setTimeout( function(){
+				$.getJSON("https://codeanimu.net/userscripts/mangaupdates.com/backend/mu_index.php", {"id": id}, function(json) {
+					if(!json.error) {
+						if($.inArray(json.id_mu.toString(), currentManga) === -1) {
+							sendHTTPRequest(function(){
+								sendHTTPRequest(function(){}, "ajax/chap_update.php?s=" + json.id_mu + "&set_c=" + currentChapter);
+							}, "ajax/list_update.php?s=" + json.id_mu + "&l=0");
+
+							$('#info_block > ul').append(
+								$('<li/>', {style: 'color: rgba(0, 255, 0, 0.70);'}).append('"').append(
+									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+								).append('" has been added to your list')
+							);
+						} else {
+							$('#info_block > ul').append(
+								$('<li/>').append('"').append(
+									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+								).append('" already exists in list')
+							);
+						}
+					} else {
+						$('#info_block > ul').append(
+							$('<li/>', {style: 'color: rgba(255, 0, 0, 0.70);'}).append('"').append(
+								$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+							).append('" is missing a mangaupdates ID')
+						);
+					}
+					$('#info_block > ul > li:last').get(0).scrollIntoView();
+
+					$('#import_status').text(i+1 + '/' + manga.length + '  ');
+
+					if(i === (manga.length - 1)) {
+						$('#import_status').append(
+							$('<a/>', {href: 'javascript: location.reload();', text: 'Reload', style: 'text-decoration: underline; color: red;'})
+						);
+					}
+				});
+			}, time);
+			time += 750;
+		});
+	}
+	function importMalGz(file) {
+		var fileData = new Blob([file]);
+
+		var promise = new Promise(function(resolve) {
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(fileData);
+			reader.onload = function() {
+				var arrayBuffer = reader.result;
+				var bytes = new Uint8Array(arrayBuffer);
+				resolve(bytes);
+			};
+		});
+		promise.then(function(data) {
+			var gunzip = new Zlib.Gunzip(data);
+			var d = gunzip.decompress();
+
+			var xml = "";
+			_arrayBufferToString(d, function(xml) {
+				importMalXmlString(xml);
+			});
+		}).catch(function(err) {
+			console.log('Error: ', err);
+			alert('ERROR: Unable to import file');
+		});
+	}
+	/** http://stackoverflow.com/a/14078925/1168377 **/
+	function _arrayBufferToString(buf, callback) {
+		var bb = new Blob([new Uint8Array(buf)]);
+		var f = new FileReader();
+		f.onload = function(e) {
+			callback(e.target.result);
+		};
+		f.readAsText(bb);
+	}
+
 });
