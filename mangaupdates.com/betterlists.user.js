@@ -9,7 +9,7 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
 // @updated      2016-04-28
-// @version      1.2.0
+// @version      1.2.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @require      https://github.com/eligrey/FileSaver.js/raw/62d219a0fac54b94cd4f230e7bfc55aa3f8dcfa4/FileSaver.min.js
 // @require      https://github.com/imaya/zlib.js/raw/068df2dee15c18d38d9dff433538ef59bbbb55fe/bin/zlib_and_gzip.min.js
@@ -28,21 +28,7 @@ $(document).ready(function() {
 
 	}
 	else if(/mangaupdates\.com\/series.html\?id=.*/.test(location.href)) {
-		var currentChapter = $('a[title="Increment Chapter"]').text().trim().replace(/[^0-9]+/g, '');
-		var id = location.search.match(/id=([0-9]+)/)[1];
-
-		$('#showList').html(function(){ return $(this).html().replace(/up to /, 'up to c.'); });
-
-		$('<input/>', {type: 'text', value: currentChapter, style: 'width: 20px; text-align: center;'}).keypress(function(e) {
-			var key = e.which;
-			if(key == 13) { //enter
-				sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+$(this).val());
-				return false;
-			}
-		}).insertBefore('a[title="Increment Volume"]');
-
-		//$('#showList').html(function(){ return $(this).html().replace(/(&nbsp;)+/g, '&nbsp;'); }); //FIXME: This breaks the keypress event.
-		$('#showList a[title*="Increment"], #showList a[title*="Decrement"]').remove();
+		setupSeries();
 	}
 	else if(/mangaupdates\.com\/releases.html\?.*/.test(location.href)) {
 		var title = $('a[title="Series Info"]:eq(0)').text().trim();
@@ -387,6 +373,34 @@ $(document).ready(function() {
 			alert('ERROR: Unable to import file');
 		});
 	}
+
+	function setupSeries() {
+		var currentChapter = $('a[title="Increment Chapter"]').text().trim().replace(/[^0-9]+/g, '');
+		var id = location.search.match(/id=([0-9]+)/)[1];
+
+		$('#showList').html(function(){ return $(this).html().replace(/up to /, 'up to c.'); });
+
+		$('<input/>', {type: 'text', value: currentChapter, style: 'width: 20px; text-align: center;'}).keypress(function(e) {
+			var key = e.which;
+			if(key == 13) { //enter
+				sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+$(this).val());
+				return false;
+			}
+		}).insertBefore('a[title="Increment Volume"]');
+
+		//$('#showList').html(function(){ return $(this).html().replace(/(&nbsp;)+/g, '&nbsp;'); }); //FIXME: This breaks the keypress event.
+		$('#showList a[title*="Increment"], #showList a[title*="Decrement"]').remove();
+
+		//Make sure series is setup after it's added to reading list.
+		$('a[href*="addReading"]').attr('href', '#').attr('id', 'add_reading');
+		$('#add_reading').click(function() {
+			sendHTTPRequest(function(r) {
+				listUpdate(r);
+				setupSeries();
+			}, "ajax/list_update.php?s=" + id + "&l=0");
+		});
+	}
+
 	/** http://stackoverflow.com/a/14078925/1168377 **/
 	function _arrayBufferToString(buf, callback) {
 		var bb = new Blob([new Uint8Array(buf)]);
