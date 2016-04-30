@@ -6,42 +6,35 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
-// @grant        GM_addStyle
 // @updated      2016-04-30
-// @version      2.0.10
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
+// @version      2.0.11
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
+// @grant        GM_addStyle
 // ==/UserScript==
+/* jshint -W097, browser:true, devel:true, multistr: true */
 
-//TODO: Make new topbar appear alongside DOM (instead of loading a second or so after).
-//Use Stylish
-GM_addStyle("#toppane, #nb {display: none !important;}"); //Hide elements before load
 var domain = (location.host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1].replace('-', '');
+GM_addStyle("#toppane, #nb {display: none !important;}"); //Hide elements before load
 
-function addJQuery(callback){
-	var script = document.createElement("script");
-	script.setAttribute("src", "//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js");
-	script.addEventListener('load', function() {
-		var script = document.createElement("script");
-		script.textContent = "(" + callback.toString() + ")();";
-		document.body.appendChild(script);
-	}, false);
-	document.body.appendChild(script);
+if(typeof window.jQuery  === "undefined"){
+	addJQuery(main); //@require doesn't work, so load JQuery then load the script
+} else {
+	main(); //@require works, so just load the script
 }
 
 function main(){
 	jQuery(document).ready(function($){
 		//Get/set default settings
 		//This seems to be stored in the uconfig cookie, but it seems to be somewhat encrypted.
-		var unsafeWindow = this['unsafeWindow'] || window;
-		var v = new Object();
+		var unsafeWindow = this.unsafeWindow || window;
+		var v = {};
 		if($('form input[id*="f_"], #searchbox input[name="f_search"]').length > 0){
-			$('form input[id*="f_"], input[name="f_search"]').each(function(){ v[$(this).attr('name')] = $(this).attr('value')});
+			$('form input[id*="f_"], input[name="f_search"]').each(function(){ v[$(this).attr('name')] = $(this).attr('value'); });
 			console.log($('html'));
 			unsafeWindow.localStorage.setItem('s', JSON.stringify(v));
 		}else{
 			v = JSON.parse(unsafeWindow.localStorage.getItem('s'));
-			v['f_search'] = "Search Keywords"; //Show default text on non-search pages.
-			
+			v.f_search = "Search Keywords"; //Show default text on non-search pages.
 		}
 
 		var colors = {
@@ -99,19 +92,19 @@ function main(){
 		$('<li/>').append( //{
 			$('<a/>', {text: "Front Page", href: location.origin})).append(
 				$('<ul/>').append(
-					$('<a/>', {text: "News", href: 'http://e-hentai.org/'})).append(
-					$('<a/>', {text: "Forums", href: 'http://forums.e-hentai.org/'})).append(
-					$('<a/>', {text: "Wiki", href: 'http://ehwiki.org/wiki/Category:E-Hentai_Galleries'})).append(
+					$('<a/>', {text: "News",     href: 'http://e-hentai.org/'})).append(
+					$('<a/>', {text: "Forums",   href: 'http://forums.e-hentai.org/'})).append(
+					$('<a/>', {text: "Wiki",     href: 'http://ehwiki.org/wiki/Category:E-Hentai_Galleries'})).append(
 					$('<a/>', {text: "Torrents", href: location.origin+'/torrents.php'})).append(
 					$('<a/>', {text: "Bounties", href: 'http://g.e-hentai.org/bounty.php'})).append(
 					$('<a/>', {text: "Toplists", href: 'http://g.e-hentai.org/toplist.php'}))).appendTo(nav);
 		$('<li/>').append(
 			$('<a/>', {text: "My Home", href: 'http://g.e-hentai.org/home.php'})).append(
 				$('<ul/>').append(
-					$('<a/>', {text: "Favorites", href: location.origin+'/favorites.php'})).append(
+					$('<a/>', {text: "Favorites",          href: location.origin+'/favorites.php'})).append(
 					$('<a/>', {text: "Maintain Galleries", href: 'http://ul.'+location.hostname.replace(/^g\./, '')+'/manage.php'})).append(
-					$('<a/>', {text: "Upload Gallery", href: 'http://ul.'+location.hostname.replace(/^g\./, '')+'/manage.php?act=new'})).append(
-					$('<a/>', {text: "Options", href: location.origin+'/uconfig.php'}))).appendTo(nav);
+					$('<a/>', {text: "Upload Gallery",     href: 'http://ul.'+location.hostname.replace(/^g\./, '')+'/manage.php?act=new'})).append(
+					$('<a/>', {text: "Options",            href: location.origin+'/uconfig.php'}))).appendTo(nav);
 		$('<li/>').append(
 			$('<a/>', {text: "HentaiVerse", href: 'http://hentaiverse.org/', onclick: "popUp('http://hentaiverse.org/',1250,720); return false"})).appendTo(nav);
 		$('<li/>', {id: 'fill', style: "border-right: 1px solid "+color3+";"}).appendTo(nav);
@@ -120,47 +113,47 @@ function main(){
 		$('<li/>', {style: "width: 506px !important; min-width: 506px; max-width: 506px;"}).append(
 			$('<form/>', {action: "http://"+location.hostname, method: "GET"}).append(
 				$('<div/>').append(
-				$('<input/>', {type: "text", name: "f_search", value: v["f_search"], class: "stdinput", onfocus: "if(this.value=='Search Keywords') this.value = '';", size: "50", maxlength: "200"})).append(
-				$('<input/>', {type: "submit", name: "f_apply", value: "Apply Filter", class: "stdbtn", style: "width: 70px"})).append(
-				$('<input/>', {type: "submit", name: "f_clear", value: "Clear Filter", class: "stdbtn", style: "width: 70px", onclick: "top.location.href='http://g.e-hentai.org/'; return false"}))).append(
+				$('<input/>', {type: "text",   name: "f_search", value: v.f_search,     class: "stdinput", onfocus: "if(this.value=='Search Keywords') this.value = '';", size: "50", maxlength: "200"})).append(
+				$('<input/>', {type: "submit", name: "f_apply",  value: "Apply Filter", class: "stdbtn", style: "width: 70px"})).append(
+				$('<input/>', {type: "submit", name: "f_clear",  value: "Clear Filter", class: "stdbtn", style: "width: 70px", onclick: "top.location.href='http://g.e-hentai.org/'; return false"}))).append(
 					$('<ul/>').append(
 						$('<table/>', {class: "itc"}).append(
 							$('<tr/>').append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_doujinshi", value: v["f_doujinshi"], id: "f_doujinshi"})).append(
-									$('<img/>', {id: "f_doujinshi_img", src: "http://ehgt.org/g/c/doujinshi"+ (v["f_doujinshi"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "doujinshi", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_doujinshi", value: v.f_doujinshi, id: "f_doujinshi"})).append(
+									$('<img/>', {id: "f_doujinshi_img", src: "http://ehgt.org/g/c/doujinshi"+ (v.f_doujinshi == 1 ? "" : "_d") + ".png", class: "ic", alt: "doujinshi",  style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_manga", value: v["f_manga"], id: "f_manga"})).append(
-									$('<img/>', {id: "f_manga_img", src: "http://ehgt.org/g/c/manga"+ (v["f_manga"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "mangat", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_manga",     value: v.f_manga,     id: "f_manga"})).append(
+									$('<img/>', {id: "f_manga_img",     src: "http://ehgt.org/g/c/manga"+ (v.f_manga == 1 ? "" : "_d") + ".png",         class: "ic", alt: "mangat",     style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_artistcg", value: v["f_artistcg"], id: "f_artistcg"})).append(
-									$('<img/>', {id: "f_artistcg_img", src: "http://ehgt.org/g/c/artistcg"+ (v["f_artistcg"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "artistcg", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_artistcg",  value: v.f_artistcg,  id: "f_artistcg"})).append(
+									$('<img/>', {id: "f_artistcg_img",  src: "http://ehgt.org/g/c/artistcg"+ (v.f_artistcg == 1 ? "" : "_d") + ".png",   class: "ic", alt: "artistcg",   style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_gamecg", value: v["f_gamecg"], id: "f_gamecg"})).append(
-									$('<img/>', {id: "f_gamecg_img", src: "http://ehgt.org/g/c/gamecg"+ (v["f_gamecg"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "gamecg", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_gamecg",    value: v.f_gamecg,    id: "f_gamecg"})).append(
+									$('<img/>', {id: "f_gamecg_img",    src: "http://ehgt.org/g/c/gamecg"+ (v.f_gamecg == 1 ? "" : "_d") + ".png",       class: "ic", alt: "gamecg",     style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_western", value: v["f_western"], id: "f_western"})).append(
-									$('<img/>', {id: "f_western_img", src: "http://ehgt.org/g/c/western"+ (v["f_western"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "western", style: "cursor:pointer"})))).append(
+									$('<input/>', {type: "hidden", name: "f_western",   value: v.f_western,   id: "f_western"})).append(
+									$('<img/>', {id: "f_western_img",   src: "http://ehgt.org/g/c/western"+ (v.f_western == 1 ? "" : "_d") + ".png",     class: "ic", alt: "western",    style: "cursor:pointer"})))).append(
 							$('<tr/>').append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_non-h", value: v["f_non-h"], id: "f_non-h"})).append(
-									$('<img/>', {id: "f_non-h_img", src: "http://ehgt.org/g/c/non-h"+ (v["f_non-h"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "non-h", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_non-h",     value: v["f_non-h"],  id: "f_non-h"})).append(
+									$('<img/>', {id: "f_non-h_img",     src: "http://ehgt.org/g/c/non-h"+ (v["f_non-h"] == 1 ? "" : "_d") + ".png",      class: "ic", alt: "non-h",      style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_imageset", value: v["f_imageset"], id: "f_imageset"})).append(
-									$('<img/>', {id: "f_imageset_img", src: "http://ehgt.org/g/c/imageset"+ (v["f_imageset"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "imageset", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_imageset",  value: v.f_imageset,  id: "f_imageset"})).append(
+									$('<img/>', {id: "f_imageset_img",  src: "http://ehgt.org/g/c/imageset"+ (v.f_imageset == 1 ? "" : "_d") + ".png",   class: "ic", alt: "imageset",   style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_cosplay", value: v["f_cosplay"], id: "f_cosplay"})).append(
-									$('<img/>', {id: "f_cosplay_img", src: "http://ehgt.org/g/c/cosplay"+ (v["f_cosplay"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "cosplay", style: "cursor:pointer",}))).append(
+									$('<input/>', {type: "hidden", name: "f_cosplay",   value: v.f_cosplay,   id: "f_cosplay"})).append(
+									$('<img/>', {id: "f_cosplay_img",   src: "http://ehgt.org/g/c/cosplay"+ (v.f_cosplay == 1 ? "" : "_d") + ".png",     class: "ic", alt: "cosplay",   style: "cursor:pointer",}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_asianporn", value: v["f_asianporn"], id: "f_asianporn"})).append(
-									$('<img/>', {id: "f_asianporn_img", src: "http://ehgt.org/g/c/asianporn"+ (v["f_asianporn"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "asianporn", style: "cursor:pointer"}))).append(
+									$('<input/>', {type: "hidden", name: "f_asianporn", value: v.f_asianporn, id: "f_asianporn"})).append(
+									$('<img/>', {id: "f_asianporn_img", src: "http://ehgt.org/g/c/asianporn"+ (v.f_asianporn == 1 ? "" : "_d") + ".png", class: "ic", alt: "asianporn", style: "cursor:pointer"}))).append(
 								$('<td/>').append(
-									$('<input/>', {type: "hidden", name: "f_misc", value: v["f_misc"], id: "f_misc"})).append(
-									$('<img/>', {id: "f_misc_img", src: "http://ehgt.org/g/c/misc"+ (v["f_misc"] == 1 ? "" : "_d") + ".png", class: "ic", alt: "misc", style: "cursor:pointer"}))))).append(
+									$('<input/>', {type: "hidden", name: "f_misc",      value: v.f_misc,      id: "f_misc"})).append(
+									$('<img/>', {id: "f_misc_img",      src: "http://ehgt.org/g/c/misc"+ (v.f_misc == 1 ? "" : "_d") + ".png",           class: "ic", alt: "misc",      style: "cursor:pointer"}))))).append(
 						$('<div/>').append(
 							$('<p/>', {class: "nopm", style: "margin-top:2px;"}).append(
 								$('<a/>', {href: "#", rel: "nofollow", id: "show_ao", text: "Show Advanced Options", style: "margin-right:5px;"})).append(
-								$('<a/>', {href: "#", rel: "nofollow", id: "show_fs", text: "Show File Search", style: "margin-left:5px;", disabled: 'disabled'}))).append(
+								$('<a/>', {href: "#", rel: "nofollow", id: "show_fs", text: "Show File Search",      style: "margin-left:5px;", disabled: 'disabled'}))).append(
 							$('<div/>', {id: 'advdiv', style: 'display: none;'}))))).append(
 					$('<ul/>', {style: 'margin-top: -1px;'}).append(
 						$('<div/>', {id: 'fsdiv', style: 'display: none;'}))
@@ -256,7 +249,7 @@ function main(){
 
 		$('#addenglish').on('click', function(e){
 			$('input[name="f_search"]').val(function(i, v){
-				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' || v == '' ? '' : ' $1'));
+				return v.replace(/(.*)/, 'english'+(v == 'Search Keywords' || v === '' ? '' : ' $1'));
 			});
 		});
 		//TODO: Possibly use jQuery slide?
@@ -280,9 +273,14 @@ function main(){
 	});
 }
 
-if(typeof window.jQuery  === "undefined"){
-	addJQuery(main); //@require doesn't work, so load JQuery then load the script
-}
-else{
-	main(); //@require works, so just load the script
+/*** Only used if @require doesn't work properly ***/
+function addJQuery(callback){
+	var script = document.createElement("script");
+	script.setAttribute("src", "//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js");
+	script.addEventListener('load', function() {
+		var script = document.createElement("script");
+		script.textContent = "(" + callback.toString() + ")();";
+		document.body.appendChild(script);
+	}, false);
+	document.body.appendChild(script);
 }
