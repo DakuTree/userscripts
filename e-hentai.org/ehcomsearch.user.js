@@ -6,10 +6,11 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
-// @updated      2016-04-30
-// @version      2.0.11
+// @updated      2016-05-01
+// @version      2.0.12
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
+// @run-at       document-start
 // ==/UserScript==
 /* jshint -W097, browser:true, devel:true, multistr: true */
 
@@ -30,7 +31,6 @@ function main(){
 		var v = {};
 		if($('form input[id*="f_"], #searchbox input[name="f_search"]').length > 0){
 			$('form input[id*="f_"], input[name="f_search"]').each(function(){ v[$(this).attr('name')] = $(this).attr('value'); });
-			console.log($('html'));
 			unsafeWindow.localStorage.setItem('s', JSON.stringify(v));
 		}else{
 			v = JSON.parse(unsafeWindow.localStorage.getItem('s'));
@@ -87,8 +87,8 @@ function main(){
 					.navbar #fsdiv {font-size: 11px; font-weight: normal;}\
 			").appendTo('head'); //}
 
-		var nav2 = $('<div/>', {id: 'navwrap'});
-		var nav = $('<ul/>', {class: 'navbar'}).appendTo(nav2);
+		var nav_wrap = $('<div/>', {id: 'navwrap'});
+		var nav = $('<ul/>', {class: 'navbar'}).appendTo(nav_wrap);
 		$('<li/>').append( //{
 			$('<a/>', {text: "Front Page", href: location.origin})).append(
 				$('<ul/>').append(
@@ -159,8 +159,8 @@ function main(){
 						$('<div/>', {id: 'fsdiv', style: 'display: none;'}))
 		).appendTo(nav); //}
 
-		//$('#nb').replaceWith(nav2);
-		$('body').prepend(nav2);
+		//$('#nb').replaceWith(nav_wrap);
+		$('body').prepend(nav_wrap);
 
 		$('#navwrap').on('click', '.nopm > a', function(e){
 			var id = ($(this).attr('id') == 'show_ao' ? 'advdiv' : 'fsdiv');
@@ -254,22 +254,26 @@ function main(){
 		});
 		//TODO: Possibly use jQuery slide?
 
-		//This is "more or less" the in built "toggle_category" function.
-		//Sadly that doesn't get loaded on gallery pages, so we use this instead.
-		$('body').on('click', 'img[id^=f_]', function(){
-			var e = $(this), //img
-			    d = $(e).prev(), //input
-			    c = parseInt($(d).val()),
-			    a = "http://ehgt.org/g/c/";
 
-			if(c){
-				$(d).val(0);
-				$(e).attr('src', $(e).attr('src').replace('.png', '_d.png'));
-			}else{
-				$(d).val(1);
-				$(e).attr('src', $(e).attr('src').replace('_d.png', '.png'));
-			}
-		});
+		setupToggleCategory();
+	});
+}
+
+function setupToggleCategory() {
+	//This is "more or less" the built-in "toggle_category" function.
+	//Sadly that doesn't get loaded on gallery pages, so we use this instead.
+	$('body').on('click', 'img[id^=f_]', function(){
+		var e         = $(this), //img
+			input     = $(e).prev(), //input
+			input_val = parseInt($(input).val());
+
+		if(input_val){
+			$(d).val(0);
+			$(e).attr('src', $(e).attr('src').replace('.png', '_d.png'));
+		}else{
+			$(d).val(1);
+			$(e).attr('src', $(e).attr('src').replace('_d.png', '.png'));
+		}
 	});
 }
 
