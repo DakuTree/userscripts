@@ -8,8 +8,8 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?.*)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-04-28
-// @version      1.2.2
+// @updated      2016-05-05
+// @version      1.2.3
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -329,6 +329,8 @@ $(document).ready(function() {
 								).append('" has been added to your list')
 							);
 						} else {
+							sendHTTPRequest(function(){}, "ajax/chap_update.php?s=" + json.id_mu + "&set_c=" + currentChapter);
+
 							$('#info_block > ul').append(
 								$('<li/>').append('"').append(
 									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
