@@ -8,13 +8,15 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?.*)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-05-05
-// @version      1.2.3
+// @updated      2016-05-10
+// @version      1.3.0
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
+// @grant        GM_xmlhttpRequest
+// @connect      myanimelist.net
 // ==/UserScript==
 /* jshint -W097, browser:true, devel:true */
-/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false, saveAs:false, Zlib:false, Promise:false, addReading:false */
+/* global $:false, jQuery:false, sendHTTPRequest:false, listUpdate:false, listUpdate2:false, GM_addStyle:false, GM_xmlhttpRequest:false, saveAs:false, Zlib:false, Promise:false, addReading:false */
 'use strict';
 
 /* jshint ignore:start */
@@ -250,11 +252,16 @@ $(document).ready(function() {
 	}
 
 	function setupImport() {
-		$('<input/>', {type: 'file', id: 'mal_input', text: 'MAL Import', width: '84px'})
+		$('<input/>', {type: 'file', id: 'mal_input', text: 'MAL Import', width: '80px'})
 			.change(function() { importMal(this); })
 			.insertAfter('a[title="Export this list"]')
 			.after($('<span/>', {id: 'import_status'}))
 			.before("] | [MAL Import: "); //Re-add the closing bracket of JSON export
+
+		$('<a/>', {id: 'mal_sync', href: '#', text: 'MAL Import (AJAX)', style: 'text-decoration: underline'})
+			.click(function(e) { e.preventDefault(); importMalSync(); })
+			.insertAfter('#mal_input')
+			.before(" | "); //Re-add the closing bracket of JSON export
 
 		//Avoid pushing file on options update.
 		$('input[name=update_options]').submit(function() {
@@ -291,6 +298,59 @@ $(document).ready(function() {
 					break;
 			}
 		}
+	}
+	function importMalSync() {
+		//Try to import sync data from MAL
+		GM_xmlhttpRequest({
+			method: "GET",
+			url: "http://myanimelist.net/panel.php?go=export",
+			onload: function(response) {
+				console.log("loaded export");
+				if(/http:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
+					//user is logged in, export manga then sync
+					var csrf_token = /<meta name='csrf_token' content='([A-Za-z0-9]+)'>/.exec(response.responseText)[1];
+					GM_xmlhttpRequest({
+						method: "POST",
+						url: "http://myanimelist.net/panel.php?go=export",
+						data: "type=2&subexport="+encodeURIComponent("Export My List")+"&csrf_token="+encodeURIComponent(csrf_token),
+						headers: {
+							"Content-Type": "application/x-www-form-urlencoded"
+						},
+						onload: function(response2) {
+							console.log("loaded export post");
+							var url_args = /<a href="\/export\/download\.php\?time=([0-9]+)&t=manga&id=([0-9]+)">.*<\/a>\./.exec(response2.responseText);
+							//we need to use our own backend to grab the data as otherwise the browser will force DL the file.
+
+
+							/** http://stackoverflow.com/a/11058858 **/
+							//For whatever reason we can't use jQuery for this..
+							var xhr = new XMLHttpRequest();
+							xhr.open('GET', "https://codeanimu.net/userscripts/mangaupdates.com/backend/mal_sync.php?time="+url_args[1]+"&id="+url_args[2]);
+							xhr.responseType = 'arraybuffer';
+							xhr.onload = function() {
+								if (this.status == 200) {
+									var bytes = new Uint8Array(this.response);
+									var gunzip = new Zlib.Gunzip(bytes);
+									var d = gunzip.decompress();
+
+									_arrayBufferToString(d, function(xml) {
+										importMalXmlString(xml);
+									});
+								} else {
+									console.error('Error while requesting', file, this);
+								}
+							};
+							xhr.send();
+						}
+					});
+				} else {
+					//user is not logged in, throw error
+					alert("Unable to sync, are you logged in on MAL?");
+				}
+			}
+		});
+
+		return false;
 	}
 	function importMalXml(file) {
 		var reader = new FileReader();
@@ -334,7 +394,7 @@ $(document).ready(function() {
 							$('#info_block > ul').append(
 								$('<li/>').append('"').append(
 									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
-								).append('" already exists in list')
+								).append('" already exists in list (Updated)')
 							);
 						}
 					} else {
