@@ -5,11 +5,11 @@
 // @description  Improves the functionality of the 'My Lists' feature to something "usable".
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?.*)?$/
+// @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?list=read)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-05-10
-// @version      1.3.0
+// @updated      2016-05-17
+// @version      1.3.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
