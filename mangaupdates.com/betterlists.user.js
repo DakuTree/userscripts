@@ -9,7 +9,7 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
 // @updated      2016-05-19
-// @version      1.3.3
+// @version      1.3.4
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
@@ -144,7 +144,7 @@ $(document).ready(function() {
 
 		var firstRow = $('#list_table > tbody > tr:nth-child(3)');
 		$('.lrow').each(function() {
-			var id              = $(this).find('a:eq(0)').removeAttr('title').attr('href').replace(/^.*id=([0-9]+)$/, '$1');
+			var id = $(this).find('a:eq(0)').removeAttr('title').attr('href').replace(/^.*id=([0-9]+)$/, '$1');
 
 			var colStatus = $(this).find('> td:nth-of-type(3)');
 			var colLatest = $(this).find('> td:nth-of-type(4)');
@@ -166,7 +166,7 @@ $(document).ready(function() {
 				return 'c'+currentChapter;
 			});
 
-			//
+			//Add click event for manual editing status
 			$(colStatus).click(function(e) {
 				if($(this).find('input').length === 0) {
 					var chapterN = getInt($(this).text());
@@ -223,6 +223,20 @@ $(document).ready(function() {
 				//Move chapters with new chapters to top of list.
 				firstRow.before(
 					$(this)
+				);
+			}
+		});
+
+		//Prepend MAL icons to series that are linked with MAL.
+		var myanimelistBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEUdQ5tBYautu9u7xuG+yeL///9WcrRHHbb3AAAANUlEQVR42s2KSQoAMAgD7Zb/P1mnIqWnXjuBKEPsFxpUIzpUb5GJwbCJWJmAe0R+km7B7IkDNr0AvowT5PIAAAAASUVORK5CYII=";
+		var currentManga = $('tr[id^=r]').map(function() { return $(this).attr('id').substring(1); }).get();
+		$.post("https://codeanimu.net/userscripts/mangaupdates.com/backend/mu_links.php", {json_ids: JSON.stringify(currentManga)}, function(data) {
+			var linkedIDs = JSON.parse(data);
+			for (var muID in linkedIDs) {
+				$('#r'+muID+' > td:nth-child(2)').prepend(
+					$('<a/>', {href: 'http://myanimelist.net/manga/'+linkedIDs[muID], style: 'margin-right: 3px;'}).append(
+						$('<img/>', {src: myanimelistBase64})
+					)
 				);
 			}
 		});
@@ -337,7 +351,7 @@ $(document).ready(function() {
 										importMalXmlString(xml);
 									});
 								} else {
-									console.error('Error while requesting', file, this);
+									console.error('Error while requesting', this);
 								}
 							};
 							xhr.send();
@@ -363,7 +377,7 @@ $(document).ready(function() {
 		var xmlObject    = $($.parseXML(xmlString)).find('myanimelist'),
 			myInfo       = xmlObject.find('> myInfo'),
 			manga        = xmlObject.find('> manga');
-		
+
 		var currentManga = {};
 		$('tr[id^=r]').each(function() {
 			var id      = $(this).attr('id').substring(1),
@@ -375,13 +389,13 @@ $(document).ready(function() {
 			return $(this).find('> my_status').text() == 'Reading';
 		});
 
-		var time = 750;
+		var time = 500;
 		manga.each(function(i) {
 			var id             = $(this).find('manga_mangadb_id').text(),
 				title          = $(this).find('manga_title').text(),
 				currentChapter = $(this).find('my_read_chapters').text();
 
-			setTimeout( function(){
+			setTimeout(function(){
 				$.getJSON("https://codeanimu.net/userscripts/mangaupdates.com/backend/mu_index.php", {"id": id}, function(json) {
 					if(!json.error) {
 						if($.inArray(json.id_mu.toString(), Object.keys(currentManga)) === -1) {
@@ -486,6 +500,7 @@ $(document).ready(function() {
 			}, "ajax/list_update.php?s=" + id + "&l=0");
 		});
 	}
+
 
 	/** http://stackoverflow.com/a/14078925/1168377 **/
 	function _arrayBufferToString(buf, callback) {
