@@ -8,8 +8,8 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?list=read)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-05-17
-// @version      1.3.1
+// @updated      2016-05-19
+// @version      1.3.2
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
@@ -362,8 +362,14 @@ $(document).ready(function() {
 	function importMalXmlString(xmlString) {
 		var xmlObject    = $($.parseXML(xmlString)).find('myanimelist'),
 			myInfo       = xmlObject.find('> myInfo'),
-			manga        = xmlObject.find('> manga'),
-			currentManga = $('tr[id^=r]').map(function() { return $(this).attr('id').substring(1); });
+			manga        = xmlObject.find('> manga');
+		
+		var currentManga = {};
+		$('tr[id^=r]').each(function() {
+			var id      = $(this).attr('id').substring(1),
+			    chapter = $(this).find('> td:nth-child(3)').text().substr(1);
+			currentManga[id] = chapter;
+		});
 
 		manga = manga.filter(function() {
 			return $(this).find('> my_status').text() == 'Reading';
@@ -378,7 +384,7 @@ $(document).ready(function() {
 			setTimeout( function(){
 				$.getJSON("https://codeanimu.net/userscripts/mangaupdates.com/backend/mu_index.php", {"id": id}, function(json) {
 					if(!json.error) {
-						if($.inArray(json.id_mu.toString(), currentManga) === -1) {
+						if($.inArray(json.id_mu.toString(), Object.keys(currentManga)) === -1) {
 							sendHTTPRequest(function(){
 								sendHTTPRequest(function(){}, "ajax/chap_update.php?s=" + json.id_mu + "&set_c=" + currentChapter);
 							}, "ajax/list_update.php?s=" + json.id_mu + "&l=0");
@@ -389,13 +395,21 @@ $(document).ready(function() {
 								).append('" has been added to your list')
 							);
 						} else {
-							sendHTTPRequest(function(){}, "ajax/chap_update.php?s=" + json.id_mu + "&set_c=" + currentChapter);
+							if(currentManga[json.id_mu.toString()] !== currentChapter) {
+								sendHTTPRequest(function(){}, "ajax/chap_update.php?s=" + json.id_mu + "&set_c=" + currentChapter);
 
-							$('#info_block > ul').append(
-								$('<li/>').append('"').append(
-									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
-								).append('" already exists in list (Updated)')
-							);
+								$('#info_block > ul').append(
+									$('<li/>').append('"').append(
+										$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+									).append('" has been updated')
+								);
+							} else {
+								// $('#info_block > ul').append(
+									// $('<li/>').append('"').append(
+										// $('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+									// ).append('" has been updated')
+								// );
+							}
 						}
 					} else {
 						$('#info_block > ul').append(
@@ -404,7 +418,9 @@ $(document).ready(function() {
 							).append('" is missing a mangaupdates ID')
 						);
 					}
-					$('#info_block > ul > li:last').get(0).scrollIntoView();
+					if($('#info_block > ul > li:last')) {
+						$('#info_block > ul > li:last').get(0).scrollIntoView();
+					}
 
 					$('#import_status').text(i+1 + '/' + manga.length + '  ');
 
@@ -415,7 +431,7 @@ $(document).ready(function() {
 					}
 				});
 			}, time);
-			time += 750;
+			time += 500;
 		});
 	}
 	function importMalGz(file) {
