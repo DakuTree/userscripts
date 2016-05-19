@@ -9,7 +9,7 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
 // @updated      2016-05-19
-// @version      1.3.4
+// @version      1.4.0
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
@@ -31,6 +31,7 @@ var saveAs=saveAs||function(e){"use strict";if("undefined"==typeof navigator||!/
 
 //Beware! Messy code ahead!
 $(document).ready(function() {
+	var malCSRF = "";
 	if(/mangaupdates\.com\/mylist.html(\?.*)?/.test(location.href)) {
 		setupList();
 		setupImport();
@@ -209,6 +210,7 @@ $(document).ready(function() {
 
 							//Update chapter.
 							sendHTTPRequest(function(){}, "ajax/chap_update.php?s="+id+"&set_c="+latestChapterN);
+							updateMALChapter(id, latestChapterN);
 
 							//Update row info.
 							$(parentRow).find('td:eq(2)').text(latestChapterE.text());
@@ -234,7 +236,7 @@ $(document).ready(function() {
 			var linkedIDs = JSON.parse(data);
 			for (var muID in linkedIDs) {
 				$('#r'+muID+' > td:nth-child(2)').prepend(
-					$('<a/>', {href: 'http://myanimelist.net/manga/'+linkedIDs[muID], style: 'margin-right: 3px;'}).append(
+					$('<a/>', {href: 'http://myanimelist.net/manga/'+linkedIDs[muID], style: 'margin-right: 3px;', 'data-mal': linkedIDs[muID]}).append(
 						$('<img/>', {src: myanimelistBase64})
 					)
 				);
@@ -501,6 +503,48 @@ $(document).ready(function() {
 		});
 	}
 
+	//FIXME: Both of these functions are ugly as hell
+	function updateMALChapter(muID, chapter) {
+		var csrf = "";
+		if(malCSRF !== "") {
+			csrf = malCSRF;
+			updateMALChapter_continued(muID, chapter, csrf);
+		} else {
+			GM_xmlhttpRequest({
+				method: "GET",
+				url: "http://myanimelist.net/panel.php?go=export",
+				onload: function(response) {
+					if(/http:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
+						//user is logged in, export manga then sync
+						malCSRF = /<meta name='csrf_token' content='([A-Za-z0-9]+)'>/.exec(response.responseText)[1];
+
+						updateMALChapter_continued(muID, chapter, malCSRF);
+					} else {
+						//user is not logged in, throw error
+						alert("Unable to sync, are you logged in on MAL?");
+					}
+				}
+			});
+		}
+
+		return csrf;
+	}
+	function updateMALChapter_continued(muID, chapter, csrf) {
+		if($('#r'+muID+' a[href*=myanimelist]').length) {
+			var json = {
+					"manga_id"          : parseInt($('#r'+muID+' a[href*=myanimelist]').attr('data-mal')),
+					"status"            : 1, //force reading list
+					"num_read_chapters" : parseInt(chapter),
+					"csrf_token"        : csrf
+			};
+			console.log(json);
+			GM_xmlhttpRequest({
+				method: "POST",
+				url: 'http://myanimelist.net/ownlist/manga/edit.json',
+				data: JSON.stringify(json)
+			});
+		}
+	}
 
 	/** http://stackoverflow.com/a/14078925/1168377 **/
 	function _arrayBufferToString(buf, callback) {
