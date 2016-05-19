@@ -9,7 +9,7 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
 // @updated      2016-05-19
-// @version      1.3.2
+// @version      1.3.3
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
@@ -59,7 +59,7 @@ $(document).ready(function() {
 			var chapterN = $(this).find('td:nth-child(4)').text().trim();
 			var groupName = $(this).find('td:nth-child(5)').text().trim();
 
-			var searchString = 'manga '+encodeURIComponent(title) + ' ' + 'ch '+chapterN + ' ' + encodeURIComponent(groupName);
+			var searchString = 'manga '+encodeURIComponent('"'+title+'"') + ' ' + 'ch '+chapterN + ' ' + encodeURIComponent('"'+groupName+'"');
 
 			$(this).append(
 				$('<td/>', {style: 'text-align: right'}).append(
