@@ -11,7 +11,7 @@
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // @updated      2016-06-03
-// @version      1.0.14
+// @version      1.0.15
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -36,7 +36,7 @@ if($('.btn-signup').length === 0) {
 
 	//Re-add profile tab + links
 	var profileLinks = $('.header-profile-link + .arrow_box a[href*="/"]');
-	var newAlerts    = parseInt($('#menu .header-message > .has-unread').attr('data-unread') || 0) + parseInt($('#menu .header-notification > .has-unread').attr('data-unread') || 0) + parseInt($('.fl-r.link-count').text().replace(/\(|\)/g, '') || 0);
+	var newAlerts    = parseInt($('#header-menu .header-message > .has-unread').attr('data-unread') || 0) + parseInt($('#header-menu .header-notification > .has-unread').attr('data-unread') || 0)/* + parseInt($('.fl-r.link-count').text().replace(/\(|\)/g, '') || 0)*/;
 
 	GM_addStyle("#profileDropdown > li { width: 140px !important; }"); //This is required to avoid "My Recommendations" going onto a newline.
 	$('#nav').prepend(
