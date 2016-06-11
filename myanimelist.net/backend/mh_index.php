@@ -15,7 +15,7 @@
 
 	list($json, $x) = array(array(), 0);
 	try {
-		if(!$mysqli->query('SET @@session.time_zone="UTC"')){ throw new Exception("Timezone change failed"); }
+		if(!$mysqli->query('SET @@session.time_zone="+00:00"')){ throw new Exception("Timezone change failed"); }
 		$query = "";
 		if($type == 'all'){
 			$query = 'SELECT type, db_id, title, status, score, chep_digested, chep_count, vol_read, vol_count, addup, sub.timestamp FROM (
