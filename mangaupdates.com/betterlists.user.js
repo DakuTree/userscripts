@@ -504,6 +504,7 @@ $(document).ready(function() {
 	}
 
 	//FIXME: Both of these functions are ugly as hell
+	//NOTE: MAL no longer stores MU ids! This is probably my fault (since I pointed out a bug with the links, and they removed the links a week or two later...).
 	function updateMALChapter(muID, chapter) {
 		var csrf = "";
 		if(malCSRF !== "") {

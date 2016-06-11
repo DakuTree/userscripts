@@ -31,7 +31,6 @@ if($('.menubox a:contains("My Wishlist")').attr('href') == location.pathname) {
 		var row = $(this);
 
 		$(row).prepend(grabTransInfo($(row).attr('href')));
-
 	});
 }
 
