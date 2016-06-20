@@ -20,7 +20,7 @@
 /* global $:false, jQuery:false, GM_addStyle:false, GM_getValue, GM_setValue */
 'use strict';
 
-var main_site = 'localhost/tracker/';
+var main_site = 'http://tracker.codeanimu.net';
 
 var config = JSON.parse(GM_getValue('config') || '{}'); //TODO: GET OPTIONS FROM LOCALSTORAGE, SET THESE VIA SITE?, NAG USER IF NOT SET OPTIONS.
 
@@ -28,8 +28,8 @@ var config = JSON.parse(GM_getValue('config') || '{}'); //TODO: GET OPTIONS FROM
 //if($.isEmptyObject(config)) {
 	//Config is loaded, do stuff.
 
-	switch(location.hostname) {
-		case 'localhost':
+	switch((location.hostname !== 'localhost' ? location.hostname : 'tracker.codeanimu.net')) {
+		case 'tracker.codeanimu.net':
 			setupTracker();
 			break;
 
