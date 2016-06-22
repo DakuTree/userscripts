@@ -6,7 +6,7 @@
 // @homepageURL  https://tracker.codeanimu.net
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https:\/\/tracker\.codeanimu\.net\/.*$/
-// @include      /^https?:\/\/localhost\/tracker\/.*$/
+// @include      /^https?:\/\/localhost\/.*\/manga-tracker\/html\/.*$/
 // @include      /^http:\/\/mangafox\.me\/manga\/.*\/.*\/.*\/.*$/
 // @updated      2016-XX-XX
 // @version      0.0.1
@@ -20,9 +20,14 @@
 /* global $:false, jQuery:false, GM_addStyle:false, GM_getValue, GM_setValue */
 'use strict';
 
+/** http://stackoverflow.com/a/1186309/1168377 **/
+$.fn.serializeObject=function(){var i={},e=this.serializeArray();return $.each(e,function(){void 0!==i[this.name]?(i[this.name].push||(i[this.name]=[i[this.name]]),i[this.name].push(this.value||"")):i[this.name]=this.value||""}),i};
+
+/***** SCRIPT *****/
 var main_site = 'http://tracker.codeanimu.net';
 
-var config = JSON.parse(GM_getValue('config') || '{}'); //TODO: GET OPTIONS FROM LOCALSTORAGE, SET THESE VIA SITE?, NAG USER IF NOT SET OPTIONS.
+var config = JSON.parse(GM_getValue('config') || '{"init": true}'); //TODO: GET OPTIONS FROM LOCALSTORAGE, SET THESE VIA SITE?, NAG USER IF NOT SET OPTIONS.
+console.log(config);
 
 // console.log(config);
 //if($.isEmptyObject(config)) {
@@ -44,6 +49,28 @@ var config = JSON.parse(GM_getValue('config') || '{}'); //TODO: GET OPTIONS FROM
 			break;
 	}
 //}
+
+function setupTracker() {
+	$('#loading-userscript').replaceWith(function() {
+		var form = $('<form/>', {id: 'userscript-config'}).append(
+		               $('<input/>', {name: 'unique-id', type: 'text', value: config['unique-id']})).append(
+					   $('<input/>', {type: 'submit'}));
+		$(form).submit(function(e) {
+			var data = $(this).serializeObject();
+			// data['init'] = false;
+
+			GM_setValue('config', JSON.stringify(data));
+
+			e.preventDefault();
+		});
+		return form;
+	});
+
+	if(config.init == true) {
+		// alert('CONFIG IS EMPTY');
+	}
+	//Replace URLs, setup options, yadda yadda
+}
 
 function setupTopBar(chapterObj, currentChapter) {
 	/* This is pretty much taken completely from the AllMangasReader extension */
@@ -79,12 +106,6 @@ function setupTopBar(chapterObj, currentChapter) {
 			$('<div/>', {id: 'TrackerBarInLtl', style: 'display: none'}).append(
 				$('<img/>', {src: '#', style: 'margin-top: -10px; margin-left: -10px; cursor: pointer;', title: 'Display AMR Toolbar', width: '40px'})*/
 			)).appendTo('body');
-}
-
-function setupTracker() {
-	$('#userscript-check').removeClass('not-loaded').addClass('loaded').text('Userscript is loaded.');
-
-	//Replace URLs, setup options, yadda yadda
 }
 
 function setupMangaFox() {
