@@ -11,7 +11,7 @@
 	$mysqli = new mysqli($dbhost, $dbuser, $dbpass, $mp_dbname); //Connect to MySQL Server
 
 	list($json, $x) = array(array(), 0);
-	if($_GET['db_id']){
+	if($db_id = $_GET['db_id']){
 		if($stmt = $mysqli->prepare("SELECT db_id, score_precise FROM $type WHERE user_id = ? AND db_id = ?")){
 			$stmt->bind_param("ii", $userid, $_GET['db_id']) or print("Binding parameters failed: ({$stmt->errno}) ".$stmt->error);
 			$stmt->execute() or print("Execute failed: (".$stmt->errno.") ". $stmt->error);
