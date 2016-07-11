@@ -2,7 +2,7 @@
 // @name         Manga Tracker
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
-// @description  A WIP cross-site manga tracker.
+// @description  A cross-site manga tracker.
 // @homepageURL  https://tracker.codeanimu.net
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https:\/\/tracker\.codeanimu\.net\/.*$/
@@ -27,130 +27,209 @@ var bookmarkBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYA
 var trackBase64    = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sFBAwYLqR4MpkAAAIhSURBVDjLzZLPaxNREMe/u91sSkISBTGxJcaA4EFbETy2FAQNmFxavXmQIJV4EIIpniTdg5coAb0IkUBzkiT4BxRECoVaFFtKwORiiLgRIfTH1jS7b9++3fUQs1hqvHjxC8OXBzOfN8wM8I/ifn/k83khFApdNQw6wwMR0zRBGWuKovtNMplcBWAPBVSr1TlVVfOh4MkzkfExNA5EaIQiMqJAltv29t7elsvlupdKpd4fAVQqFcnj8WRnpqe4nuDH4rsf6GgcdlQTIzbDo4tA0Gjj7coqNS0rmclkXg0AfLFYvOn1erOJRILzBY7h8fo+bpzzYT68C3+tDJ0aeLBOcSocxezcrGhZVkmSpGkHQAjJxmIxDgA+dXR4RkWcYNuAvAX+42t4PyzB4F1Y/qwh4PMiHo+7er3e8wFAoJQySikEQYBtA/5REc+WKnhyNoCXt27/SlsGGoDWAI4DuKvrl54OOuB5PlMul03GGC4E3djtqohevwMAMBUFRqcDXZZBWi2o9Tp6tRr219acIfLpdHpFUZT5QqHAvn5p4f6kGzuqCQCwKIWl67AIgaVpfSfkz2vM5XJThJAX4fGxidORKM5/a0OXZafYZgwWIbANAwe1Gi5vbHBHDgkAJ0mLV7rd7rWFicmHpNVyfrYZc0C9en0owNH3UslW63Wnbdsw+m6a0JpNB8D/7c5txvphGH03TdiMHcoRhhUfbG4emvb/q59HqiRjuY+xSgAAAABJRU5ErkJggg==';
 var currentBase64  = 'data:image/gif;base64,R0lGODlhEAAQAHcAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCgBEACwAAAAAEAAQAIeyPgbynlb+znrybh7+umb+9q66WiLyikL+qkr2upb+ljbqRgL2zrr+6tr+wm7qVg7+9ur2pnrufi7uZhr+nk7+smb2kk66Uhr+4pr6jjr+rk7mTgb62qb+ynb++vLufk7+okK2Rg7+1n76tob6ypb+8ub+wn7mXiL2fibqZib2mlL+okrudjr+unb+hir+qk72wqb+lkbmSgL+1rr67uL+wnbqWhb+9vLygjL+jjL+rlbqUgr+3sb++vb+oka2RhL+1oruai72mloAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIyQCJCCRywcCFgxdCDFxIxEABDBiAiOjg4AfDhgUEaEBQ44UGDQQsDnRYA0SLCj1McADhQ4fICwUc5FBQgoQHmytWKHih0ACQDC5c1LxB4kaCGS5W9BSQoUGGEgmMGuWBIobFCxUk3IhQgsaNBjcYzBhA4aqKBw14QLjBlu2MByos/sCxI2rbtjB2BLhABECQDQ943GX7YcIIkQBsLDjhtW0CwwYWAjghw0aQy0FOjIjMEECKFCwOWBCy+aJAACFC/PhxQaTp1wsDAgA7';
 
-
-
 /***********************************************************************************************************/
+$.fn.reverse = [].reverse;
 var sites = {
-	'mangafox.me' : function() {
-		var title = $('#series strong:last > a').text().split(' Manga')[0];
-		var count = $('#top_bar .prev_page + div').text().trim().replace(/^[\s\S]*of ([0-9]+)$/, '$1');
+	'mangafox.me' : {
+		init: function() {
+			var _this = this;
+			this.setObjVars();
 
-		var chapter_url = location.href.replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1');
-		var manga_url = chapter_url.replace(/^(.*\/.*\/).*\/.*\/$/, '$1');
+			this.stylize();
 
-		$('#viewer').css('background', 'none').css('border', '0');
-		$('.prev_page').parent().remove(); //No need to have prev/next page controls since everything is loaded on a single page.
-		$('#top_chapter_list, #bottom_chapter_list').css('width', '100%');
-		$('#tool > #series > strong:eq(1)').remove();
-		$('#tool > #series > strong:last').css('float', 'right');
+			this.fixBugs(function() {
+				_this.setupTopBar();
+			});
 
-		//FIX Chapter Dropdown (Sometimes recently added chapters don't show in list).
-		var segments = window.location.pathname.split( '/' ),
-			volume   = segments[3],
-			chapter  = segments[4];
-		var chapterTitle = $('#tip strong:first').text().replace(/^.*: (.*)(?: [0-9]+)?$/, '$1');
-		$('#top_chapter_list').append($('<option/>', {value: volume+'/'+chapter, text: 'Vol '+volume.substr(1) + ' Ch ' + chapter.substr(1) + ': '+chapterTitle}));
-		$('#top_chapter_list').val(volume+'/'+chapter);
-		$('script[src*="js/list"]').on("load", function() {
-			//We need to re-add it, since the above one is added prior to the page JS populating the chapter list.
-			if(!$('#top_chapter_list option[value="'+volume+'/'+chapter+'"]').length) { 
-				$('#top_chapter_list').append($('<option/>', {value: volume+'/'+chapter, text: 'Vol '+volume.substr(1) + ' Ch ' + chapter.substr(1) + ': '+chapterTitle}));
-				$('#top_chapter_list').val(volume+'/'+chapter);
-			}
+			this.setupViewer();
 
-			$(window).on("load", function() {
-				//Auto-track chapter if enabled
-				if(config.auto_track && config.auto_track == 'on') {
-					if(config['api-key']) {
-						var json = { 
-							'api-key' : config['api-key'],
-							'manga'   : {
-								'site'    : 'mangafox.me',
-								'title'   : segments[2],
-								'chapter' : volume+'/'+chapter
-							}
-						};
+		},
+		setObjVars : function () {
+			var segments       = window.location.pathname.replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1').split( '/' );
 
-						$.post(main_site + '/ajax/update_tracker', json, function (data) {
-							console.log(data);
-						});
+			//FIXME: Is there a better way to do this? It just feels like an ugly way of setting vars.
+			this.page_count     = $('#top_bar .prev_page + div').text().trim().replace(/^[\s\S]*of ([0-9]+)$/, '$1');
+			this.title          = segments[2];
+			this.volume_chapter = (!!segments[4] ? segments[3]+'/'+segments[4] : segments[3]);
 
-						// console.log(json);
-					} else {
-						alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
-					}
+			this.manga_url   = 'http://mangafox.me/manga/'+this.title+'/';
+			this.chapter_url = 'http://mangafox.me/manga/'+this.title+'/'+this.volume_chapter+'/';
+		},
+		stylize : function() {
+			//This removes the old border/background. The viewer adds borders to the images now instead which looks better.
+			$('#viewer').css({
+				'background' : 'none',
+				'border'     : '0'
+			});
+
+			//Remove page count from the header, since all pages are loaded at once now.
+			$('#tool > #series > strong:eq(1)').remove();
+
+			//Float title in the header to the right. This just looks nicer and is a bit easier to read.
+			$('#tool > #series > strong:last').css('float', 'right');
+		},
+		getChapterList : function(callback/*urlManga, mangaName, obj, callback*/) {
+			var _this = this;
+
+			//Newly released chapters aren't always included in the inline chapter list. If we were just viewing new chapters this would be fine, but we wouldn't know if we were viewing older chapters.
+			//This is probably due to what I'm is DB caching on the backend. Why it isn't been cleared when a new chapter is added is beyond me.
+			//This means we have to grab the chapter list via manga page, rather than using the inline one. It's a pain but what can you do :|
+			$.ajax({
+				url: _this.manga_url,
+				beforeSend: function(xhr) {
+					xhr.setRequestHeader("Cache-Control", "no-cache, no-store");
+					xhr.setRequestHeader("Pragma", "no-cache");
+				},
+				cache: false,
+				success: function(response) {
+					response = response.replace(/[\S\s]*(<div id="chapters"\s*>[\S\s]*)<div id="discussion" >[\S\s]*/, '$1'); //Only grab the chapter list
+					var div = $('<div/>').append($(response));
+
+					var chapterList = {};
+					$("#chapters > .chlist > li > div > a + * > a", div).reverse().each(function() {
+						var chapterTitle = $('+ span.title', this).text().trim();
+						var url           = $(this).attr('href').replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1');
+
+						chapterList[url] = url.replace(/^.*\/manga\/[^/]+\/(?:v(.*?)\/)?c(.*?)\/$/, 'Vol.$1 Ch.$2').replace(/^Vol\. /, '') + (chapterTitle !=='' ? ': '+chapterTitle : '');
+					});
+					callback(chapterList);
 				}
 			});
+		},
+		fixBugs : function(callback) {
+			var _this = this;
 
-			//Load topbar
-			var chapterList = {};
-			$('#top_chapter_list > option').each(function() {
-				chapterList[manga_url + $(this).attr('value')] = $(this).text().trim();
+			//Sometimes newly released chapters don't properly appear on the chapter list, we need to add these manually.
+			//Even though this list will be removed later when we add our topbar, we still use this as a base.
+			//Also since the list is generated after page load via JS, we need to
+
+			//FIX Chapter Dropdown (Sometimes recently added chapters don't show in list).
+			var chapterTitle = $('#tip strong:first').text().replace(/^.*: (.*)(?: [0-9]+)?$/, '$1');
+			var chapterString = _this.volume_chapter.replace(/^(?:v(.*?)\/)?c(.*?)$/, 'Vol.$1 Ch.$2').replace(/^Vol\. /, '') + ': '+chapterTitle;
+			$('#top_chapter_list').append($('<option/>', {value: _this.volume_chapter, text: chapterString})).val(_this.volume_chapter);
+			$('script[src*="js/list"]').on("load", function() {
+				//We need to re-add it, since the above one is added prior to the page JS populating the chapter list.
+				if(!$('#top_chapter_list option[value="'+_this.volume_chapter+'"]').length) {
+					$('#top_chapter_list').append($('<option/>', {value: _this.volume_chapter, text: chapterString}));
+					$('#top_chapter_list').val(_this.volume_chapter);
+				}
+
+				callback();
 			});
-			setupTopBar(chapterList, manga_url + volume+'/'+chapter, function(topBar) {
-				$('#top_center_bar').remove();
-				$('#bottom_center_bar').remove();
-				$('#tool + .gap').remove();
-				$('#tool + .gap').remove();
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+			//Generate the chapter list to be passed to the topbar.
+			//NOTE: MangaFox currently has a bug where the chapter list may not contain new chapters (SEE MORE IN fixBugs). Because of this, we load the chapter list from the manga page.
+			//      Before we load the AJAX version, we use the inline chapter list as a base for UX purposes (so the user isn't waiting for a topbar to load). This is replaced with the AJAX list when it loads.
+
+			/**** SETUP INLINE LIST ****/
+			var inlineChapterList = {};
+			$('#top_chapter_list > option').each(function() {
+				inlineChapterList[_this.manga_url + $(this).attr('value')] = $(this).text().trim();
+			});
+			setupTopBar(inlineChapterList, _this.chapter_url.slice(0, -1), function(topBar) {
+				//Remove MangaFox's chapter navigation since we now have our own. Also remove leftover whitespace.
+				$('#top_center_bar, #bottom_center_bar').remove();
+				$('#tool').parent().find('> .gap').remove();
 				$('#series').css('padding-top', '0');
 
+				//Setup the tracking click event.
 				$(topBar).on('click', '#trackCurrentChapter', function(e) {
 					e.preventDefault();
 
-					if(config['api-key']) {
-						var json = { 
-							'api-key' : config['api-key'],
-							'manga'   : {
-								'site'    : 'mangafox.me',
-								'title'   : segments[2],
-								'chapter' : volume+'/'+chapter
-							}
-						};
-
-						var ret = confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?");
-						if (ret) {
-							$.post(main_site + '/ajax/update_tracker', json, function (data) {
-								console.log(data);
-							});
-						}
-
-						// console.log(json);
-					} else {
-						alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
-					}
+					_this.trackChapter(true);
 				});
 			});
-		});
 
-		$('#viewer > .read_img').remove();
-		GM_addStyle('\
-			#viewer { width: auto; max-width: 95%; }\
-			#viewer > .read_img { background: none; }\
-			#viewer > .read_img  img { width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ background: url("http://mangafox.me/media/loading.gif") no-repeat center; min-height: 300px;}\
-			.pageNumber { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
-			.pageNumber .number { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
-		');
+			/**** SETUP AJAX LIST ****/
+			this.getChapterList(function(ajaxChapterList) {
+				var div = $('<div/>', {class: 'TrackerBarLayout', style: 'display: inline-block'}).append(
+				              (Object.keys(ajaxChapterList).indexOf(_this.chapter_url) > 0 ? $('<a/>', {class: 'buttonTracker', href: Object.keys(ajaxChapterList)[Object.keys(ajaxChapterList).indexOf(_this.chapter_url) - 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Previous'}) : "")).append(
+				              $('<select/>', {style: 'float: none; max-width: 943px', onchange: 'location.href = this.value'}).append(
+					       $.map(ajaxChapterList, function(k, v) {var o = $('<option/>', {value: v, text: k}); if(_this.chapter_url == v) {o.attr('selected', '1');} return o.get();}))).append(
+				(Object.keys(ajaxChapterList).indexOf(_this.chapter_url) < (Object.keys(ajaxChapterList).length - 1) ? $('<a/>', {class: 'buttonTracker', href: Object.keys(ajaxChapterList)[Object.keys(ajaxChapterList).indexOf(_this.chapter_url) + 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Next'}) : "")).append(
+				$('<img/>', {class: 'bookAMR', src: bookmarkBase64, title: 'Click here to bookmark this chapter'})).append(
+				$('<img/>', {class: 'butamrread', src: trackBase64, title: 'Stop following updates for this manga'})).append(
+				$('<img/>', {id: 'trackCurrentChapter', src: currentBase64, title: 'Mark this chapter as latest chapter read'}));
 
-		for(var x=1; x<count; x++) {
-			//Create the elements where the pages will go, so they stay in order even if the $.get doesn't load in order.
-			if(x == 1) {
-				$('<div/>', {id: 'page-'+x, class: 'read_img'}).prependTo($('#viewer'));
-			} else {
-				$('<div/>', {id: 'page-'+x, class: 'read_img'}).insertAfter($('#viewer > .read_img:last'));
+				$('.TrackerBarLayout').replaceWith(div);
+			});
+
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			//Remove the current page, because it might not always be the first.
+			$('#viewer > .read_img').remove();
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#viewer                  { width: auto; max-width: 95%; }\
+				#viewer > .read_img      { background: none; }\
+				#viewer > .read_img  img { width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ background: url("http://mangafox.me/media/loading.gif") no-repeat center; min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			//Generate the viewer using a loop & AJAX.
+			//FIXME: Is it possible to make sure the pages load in order without using async: false?
+			//FIXME: Is it possible to set the size of the image element before it is loaded (to avoid pop-in)?
+			for(var pageN=1; pageN<_this.page_count; pageN++) {
+				if(pageN == 1) {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).prependTo($('#viewer'));
+				} else {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#viewer > .read_img:last'));
+				}
+				$.ajax({
+					url: 'http://mangafox.me/manga/'+_this.title+'/'+_this.volume_chapter+'/'+pageN+'.html',
+					type: 'GET',
+					page: pageN,
+					//async: false,
+					success: function(data) {
+						var image = $(data.replace(/^[\s\S]*(<div class="read_img">[\s\S]*<\/div>)[\s\S]*<div id="MarketGid[\s\S]*$/, '$1'));
+						$(image).find('> a > img').unwrap(); //Remove image link
+
+						//Add page number below the image
+						$('<div/>', {class: 'pageNumber'})
+						               .append($('<div/>', {class: 'number', text: this.page}))
+									   .appendTo(image);
+
+						$('#page-'+this.page).replaceWith(image);
+					}
+				});
 			}
-			$.ajax({
-				url: chapter_url + x+'.html',
-				type: 'GET',
-				page: x,
-				//async: false,
-				success: function(data) {
-					var image = data.replace(/^[\s\S]*(<div class="read_img">[\s\S]*<\/div>)[\s\S]*<div id="MarketGid[\s\S]*$/, '$1').replace(/href="[0-9]+.html"/, 'href="#"').replace(/onclick="return enlarge\(\)"/, 'onclick="return false;"'); //Just get the element we want to avoid extra loading.
-					var pageN = $('<div/>', {class: 'pageNumber'});
-					pageN.append($('<div/>', {class: 'number', text: this.page}));
 
-					$('#page-'+this.page).replaceWith(image.replace(/<\/div>$/, pageN.prop('outerHTML')+'</div>'));
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
 				}
 			});
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'mangafox.me',
+						'title'   : _this.title,
+						//real title
+						'chapter' : _this.volume_chapter
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
 		}
 	},
 	'mangahere.co' : function() {
@@ -182,7 +261,7 @@ console.log(config);
 			//TODO: Instead of using case, check against online JSON for valid websites?
 			if(sites[hostname]) {
 				$(function() {
-					sites[hostname]();
+					sites[hostname].init();
 				});
 			}
 			break;
@@ -204,7 +283,7 @@ function setupTrackerOptions() {
 				$('<a/>', {id: 'generate-api-key', href: '#', text: 'Generate new API key'}))).append(
 			$('<div/>', {class: 'form-group'}).append(
 				$('<label/>', {'for': 'auto_track', 'text': 'Auto track series on page load '}).append(
-				$('<input/>', {id: 'auto_track', name: 'auto_track', type: 'checkbox', checked: !!config['auto_track']})))).append(
+				$('<input/>', {id: 'auto_track', name: 'auto_track', type: 'checkbox', checked: !!config.auto_track})))).append(
 			$('<input/>', {type: 'submit', 'value' : 'Save Settings'}));
 		$(form).submit(function(e) {
 			var data = $(this).serializeArray().reduce(function(m,o){ m[o.name] = o.value; return m;}, {});
@@ -225,7 +304,7 @@ function setupTrackerOptions() {
 		return form;
 	});
 
-	if(config.init == true) {
+	if(config.init === true) {
 		// alert('CONFIG IS EMPTY');
 	}
 	//Replace URLs, setup options, yadda yadda
@@ -237,22 +316,23 @@ function setupTopBar(chapterObj, currentChapter, callback) {
 		#TrackerBar { position: fixed !important; z-index: 10000000 !important; top: 0 !important; width: 100% !important; /*text-align:center!important; height:30px!important;*/ opacity: .9 !important; -webkit-transition: all .4s ease-in-out !important; padding: 0 !important; margin: 0 !important; }\
 		#TrackerBar:hover { opacity: 1 !important; }\
 		#TrackerBarIn { padding: 2px 15px !important; margin: 0 !important; border-bottom-left-radius: 6px 6px !important; border-bottom-right-radius: 6px 6px !important; border: 1px solid #CCC !important; border-top: 0 !important; opacity: 1 !important; background-color: #fff !important; /*display:inline-block!important;*/ padding-left: 15px !important; padding-right: 15px !important; }\
-		#TrackerBarIn img,.TrackerBarlayout img { vertical-align: middle !important; margin-left: 5px !important; margin-right: 5px !important; cursor: pointer !important; }\
+		#TrackerBarIn img,.TrackerBarLayout img { vertical-align: middle !important; margin-left: 5px !important; margin-right: 5px !important; cursor: pointer !important; }\
 		#TrackerBarIn div { padding: 0 !important; margin: 0 !important; }\
-		#TrackerBarIn .buttonTracker,.TrackerBarlayout .buttonTracker { vertical-align: middle !important; }\
-		#TrackerBarIn select,.TrackerBarlayout select { vertical-align: middle !important; }\
-		#TrackerBarIn a,.TrackerBarlayout a { vertical-align: middle !important; }\
+		#TrackerBarIn .buttonTracker,.TrackerBarLayout .buttonTracker { vertical-align: middle !important; }\
+		#TrackerBarIn select,.TrackerBarLayout select { vertical-align: middle !important; }\
+		#TrackerBarIn a,.TrackerBarLayout a { vertical-align: middle !important; }\
 		#TrackerBarInLtl { padding: 0 !important; margin: 0 !important; opacity: .7 !important; }\
 		#TrackerBarInLtl:hover { opacity: 1 !important; }\
 		a.buttonTracker { display: inline-block; min-width: 100px; border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; text-align: center; cursor: pointer; font-size: 10pt; color: rgb(0, 0, 0); text-decoration: none; padding: 2px; border-width: 1px; border-style: solid; border-color: rgb(221, 221, 221); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(255, 255, 255)), to(rgb(238, 238, 238))); border-radius: 5px; transition: all 0.4s ease-in-out; margin: 5px; }\
 		a.buttonTracker:hover { color:#003C82!important; border-color:#3278BE; text-decoration:none!important; background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#EEE), to(#FFFFFF)); }\
 		a.buttonTracker:active { background:#4195DD; background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#003C82), to(#4195DD)); background:-moz-linear-gradient(0% 90% 90deg, #4195DD, #003C82); }\
 	");
+
 	var topbar = $('<div/>', {id: 'TrackerBar', style: 'text-align: center'}).append(
 		$('<div/>', {id: 'TrackerBarIn', style: 'display: inline-block'}).append(
 			$('<a/>', {href: 'https://tracker.codeanimu.net', target: '_blank'}).append(
 				$('<img/>', {src: mtBase64, width: '20px'}))).append(
-			$('<div/>', {class: 'TrackerBarlayout', style: 'display: inline-block'}).append(
+			$('<div/>', {class: 'TrackerBarLayout', style: 'display: inline-block'}).append(
 				(Object.keys(chapterObj).indexOf(currentChapter) > 0 ? $('<a/>', {class: 'buttonTracker', href: Object.keys(chapterObj)[Object.keys(chapterObj).indexOf(currentChapter) - 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Previous'}) : "")).append(
 				$('<select/>', {style: 'float: none; max-width: 943px', onchange: 'location.href = this.value'}).append(
 					$.map(chapterObj, function(k, v) {var o = $('<option/>', {value: v, text: k}); if(currentChapter == v) {o.attr('selected', '1');} return o.get();}))).append(
