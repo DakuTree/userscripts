@@ -5,7 +5,7 @@
 // @description  A cross-site manga tracker.
 // @homepageURL  https://tracker.codeanimu.net
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^https:\/\/tracker\.codeanimu\.net\/.*$/
+// @include      /^https:\/\/(?:(?:dev|test)\.)?tracker\.codeanimu\.net\/.*$/
 // @include      /^https?:\/\/localhost\/.*\/manga-tracker\/html\/.*$/
 // @include      /^http:\/\/mangafox\.me\/manga\/.*\/(.*\/)?.*\/.*$/
 // @include      /^http:\/\/mangahere\.co\/manga\/.*\/.*\/?.*\/.*$/
@@ -253,7 +253,7 @@ console.log(config);
 // console.log(config);
 //if($.isEmptyObject(config)) {
 	//Config is loaded, do stuff.
-	var hostname = (location.hostname !== 'localhost' ? location.hostname : 'tracker.codeanimu.net');
+	var hostname = location.hostname.replace(/^(?:dev|test)\./, '');
 	switch(hostname) {
 		case 'tracker.codeanimu.net':
 			if(location.pathname.substr(1, 13) !== 'user/options') {
@@ -346,7 +346,7 @@ function setupTopBar(chapterObj, currentChapter, callback) {
 
 	var topbar = $('<div/>', {id: 'TrackerBar', style: 'text-align: center'}).append(
 		$('<div/>', {id: 'TrackerBarIn', style: 'display: inline-block'}).append(
-			$('<a/>', {href: 'https://tracker.codeanimu.net', target: '_blank'}).append(
+			$('<a/>', {href: main_site, target: '_blank'}).append(
 				$('<img/>', {src: mtBase64, width: '20px'}))).append(
 			$('<div/>', {class: 'TrackerBarLayout', style: 'display: inline-block'}).append(
 				(Object.keys(chapterObj).indexOf(currentChapter) > 0 ? $('<a/>', {class: 'buttonTracker', href: Object.keys(chapterObj)[Object.keys(chapterObj).indexOf(currentChapter) - 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Previous'}) : "")).append(
