@@ -8,7 +8,7 @@
 // @include      /^https:\/\/(?:(?:dev|test)\.)?tracker\.codeanimu\.net\/.*$/
 // @include      /^https?:\/\/localhost\/.*\/manga-tracker\/html\/.*$/
 // @include      /^http:\/\/mangafox\.me\/manga\/.*\/(.*\/)?.*\/.*$/
-// @include      /^http:\/\/mangahere\.co\/manga\/.*\/.*\/?.*\/.*$/
+// @include      /^http:\/\/(?:www\.)?mangahere\.co\/manga\/.*\/.*\/?.*\/.*$/
 // @include      /^http:\/\/bato\.to\/reader.*$/
 // @updated      2016-XX-XX
 // @version      0.0.1
@@ -36,8 +36,12 @@ var currentBase64  = 'data:image/gif;base64,R0lGODlhEAAQAHcAACH/C05FVFNDQVBFMi4w
 /***********************************************************************************************************/
 $.fn.reverse = [].reverse;
 var sites = {
+	//FIXME: Is there a better way to set site vars?
+	//FIXME: VIEWER: Is it possible to make sure the pages load in order without using async: false?
+	//FIXME: VIEWER: Is it possible to set the size of the image element before it is loaded (to avoid pop-in)?
+
 	'mangafox.me' : {
-		init: function() {
+		init : function() {
 			var _this = this;
 			this.setObjVars();
 
@@ -53,7 +57,6 @@ var sites = {
 		setObjVars : function () {
 			var segments       = window.location.pathname.replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1').split( '/' );
 
-			//FIXME: Is there a better way to do this? It just feels like an ugly way of setting vars.
 			this.page_count     = $('#top_bar .prev_page + div').text().trim().replace(/^[\s\S]*of ([0-9]+)$/, '$1');
 			this.title          = segments[2];
 			this.volume_chapter = (!!segments[4] ? segments[3]+'/'+segments[4] : segments[3]);
@@ -238,7 +241,146 @@ var sites = {
 			}
 		}
 	},
-	'mangahere.co' : function() {
+
+	'www.mangahere.co' : {
+		//MangaHere uses pretty much the same site format as MangaFox, with a few odd changes.
+		init : function() {
+			this.setObjVars();
+
+			this.stylize();
+
+			this.setupTopBar();
+
+			this.setupViewer();
+		},
+		setObjVars : function() {
+			var segments       = window.location.pathname.replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1').split( '/' );
+
+			//FIXME: Is there a better way to do this? It just feels like an ugly way of setting vars.
+			this.page_count     = $('.go_page:first > .right > select > option').length;
+			this.title          = segments[2];
+			this.volume_chapter = (!!segments[4] ? segments[3]+'/'+segments[4] : segments[3]);
+
+			this.manga_url   = 'http://www.mangahere.co/manga/'+this.title+'/';
+			this.chapter_url = 'http://www.mangahere.co/manga/'+this.title+'/'+this.volume_chapter+'/';
+		},
+		stylize : function() {
+			GM_addStyle("\
+				.read_img { min-height: 0; }\
+				.readpage_top {margin-bottom: 5px;}\
+				.readpage_top .title h1, .readpage_top .title h2 {font-size: 15px;}");
+
+			//Remove banners
+			$('.readpage_top > div[class^=advimg], .readpage_footer > div[class^=banner-]').remove();
+
+			//Remove Tsukkomi thing
+			$('.readpage_footer > .tsuk-control, #tsuk_container').remove();
+
+			//Remove social bar.
+			$('.plus_report').remove();
+
+			$('#viewer').css({
+				'background' : 'none',
+				'border'     : '0'
+			});
+
+			//Format the chapter header
+			$('.readpage_top > .title').html(function(i, html) { return html.replace('</span> / <h2', '</span><h2'); });
+			$('.readpage_top > .title > span[class^=color]').remove();
+			$('.readpage_top > .title h2').addClass('right');
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+			//Generate the chapter list to be passed to the topbar.
+			$('script[src*="get_chapters"]').on("load", function() {
+				var chapterList = {};
+				$('#top_chapter_list > option').each(function() {
+					chapterList[$(this).attr('value')] = $(this).text().trim();
+				});
+				setupTopBar(chapterList, _this.chapter_url, function(topBar) {
+					$('.go_page:first').remove();
+
+					//Setup the tracking click event.
+					$(topBar).on('click', '#trackCurrentChapter', function(e) {
+						e.preventDefault();
+
+						_this.trackChapter(true);
+					});
+				});
+			});
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			//Remove the current page, because it might not always be the first.
+			$('#viewer > a').remove();
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#viewer                  { width: auto; max-width: 95%; }\
+				#viewer > .read_img      { background: none; width: auto !important; }\
+				#viewer > .read_img  img { width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ background: url("http://mangafox.me/media/loading.gif") no-repeat center; min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			//Generate the viewer using a loop & AJAX.
+			for(var pageN=1; pageN<=_this.page_count; pageN++) {
+				if(pageN == 1) {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).prependTo($('#viewer'));
+				} else {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#viewer > .read_img:last'));
+				}
+				$.ajax({
+					url: _this.chapter_url+pageN+'.html',
+					type: 'GET',
+					page: pageN,
+					//async: false,
+					success: function(data) {
+						var image = $(data.replace(/^[\s\S]*(<section class="read_img"[\s\S]*<\/section>)[\s\S]*<section class="readpage_footer[\s\S]*$/, '$1'));
+						image = $('<div/>', {class: 'read_img'}).append($(image).find('> a > img'));
+
+						//Add page number below the image
+						$('<div/>', {class: 'pageNumber'})
+						               .append($('<div/>', {class: 'number', text: this.page}))
+									   .appendTo(image);
+
+						$('#page-'+this.page).replaceWith(image);
+					}
+				});
+			}
+
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
+				}
+			});
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'www.mangahere.co',
+						'title'   : _this.title,
+						//real title
+						'chapter' : _this.volume_chapter
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
+		}
 	},
 	'bato.to' : function() {
 	}
@@ -353,8 +495,8 @@ function setupTopBar(chapterObj, currentChapter, callback) {
 				$('<select/>', {style: 'float: none; max-width: 943px', onchange: 'location.href = this.value'}).append(
 					$.map(chapterObj, function(k, v) {var o = $('<option/>', {value: v, text: k}); if(currentChapter == v) {o.attr('selected', '1');} return o.get();}))).append(
 				(Object.keys(chapterObj).indexOf(currentChapter) < (Object.keys(chapterObj).length - 1) ? $('<a/>', {class: 'buttonTracker', href: Object.keys(chapterObj)[Object.keys(chapterObj).indexOf(currentChapter) + 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Next'}) : "")).append(
-				$('<img/>', {class: 'bookAMR', src: bookmarkBase64, title: 'Click here to bookmark this chapter'})).append(
-				$('<img/>', {class: 'butamrread', src: trackBase64, title: 'Stop following updates for this manga'})).append(
+				// $('<img/>', {class: 'bookAMR', src: bookmarkBase64, title: 'Click here to bookmark this chapter'})).append(
+				// $('<img/>', {class: 'trackStop', src: trackBase64, title: 'Stop following updates for this manga'})).append(
 				$('<img/>', {id: 'trackCurrentChapter', src: currentBase64, title: 'Mark this chapter as latest chapter read'}))).append(
 			/*$('<div/>', {style: 'display: inline-block'}).append(
 				$('<img/>', {src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAA3NCSVQICAjb4U/gAAAAGFBMVEW/v7/////V1dXu7u7Gxsbc3NzMzMzl5eW5mFoUAAAACXBIWXMAAAsSAAALEgHS3X78AAAAH3RFWHRTb2Z0d2FyZQBNYWNyb21lZGlhIEZpcmV3b3JrcyA4tWjSeAAAABZ0RVh0Q3JlYXRpb24gVGltZQAwNi8xNi8wNoxlAQMAAABwSURBVAiZLY4xCoAwFEMDle5pEVerF2hFdBX1At6gqOgsgue3X3zDJ0N+EpBN1DUJmvHuS5fEEUg7E2ZjonPwQYRVqPix4jRIuAfKDkAWPBQ9vnMyBxY+Yo5azOm9nVgoCSwuCeT+V9Dou49S+s94AbiAEUwMbfYNAAAAAElFTkSuQmCC', title: 'Hide AMR Toolbar', width: '16px'})))).append(
