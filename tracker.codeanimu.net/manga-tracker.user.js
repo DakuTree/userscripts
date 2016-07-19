@@ -91,7 +91,7 @@ var sites = {
 				},
 				cache: false,
 				success: function(response) {
-					response = response.replace(/[\S\s]*(<div id="chapters"\s*>[\S\s]*)<div id="discussion" >[\S\s]*/, '$1'); //Only grab the chapter list
+					response = response.replace(/^[\S\s]*(<div id="chapters"\s*>[\S\s]*)<div id="discussion" >[\S\s]*$/, '$1'); //Only grab the chapter list
 					var div = $('<div/>').append($(response));
 
 					var chapterList = {};
