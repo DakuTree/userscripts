@@ -159,8 +159,8 @@ var sites = {
 				              $('<select/>', {style: 'float: none; max-width: 943px', onchange: 'location.href = this.value'}).append(
 					       $.map(ajaxChapterList, function(k, v) {var o = $('<option/>', {value: v, text: k}); if(_this.chapter_url == v) {o.attr('selected', '1');} return o.get();}))).append(
 				(Object.keys(ajaxChapterList).indexOf(_this.chapter_url) < (Object.keys(ajaxChapterList).length - 1) ? $('<a/>', {class: 'buttonTracker', href: Object.keys(ajaxChapterList)[Object.keys(ajaxChapterList).indexOf(_this.chapter_url) + 1], onclick: 'window.location.href = this.href; window.location.reload();', text: 'Next'}) : "")).append(
-				$('<img/>', {class: 'bookAMR', src: bookmarkBase64, title: 'Click here to bookmark this chapter'})).append(
-				$('<img/>', {class: 'butamrread', src: trackBase64, title: 'Stop following updates for this manga'})).append(
+				// $('<img/>', {class: 'bookAMR', src: bookmarkBase64, title: 'Click here to bookmark this chapter'})).append(
+				// $('<img/>', {class: 'butamrread', src: trackBase64, title: 'Stop following updates for this manga'})).append(
 				$('<img/>', {id: 'trackCurrentChapter', src: currentBase64, title: 'Mark this chapter as latest chapter read'}));
 
 				$('.TrackerBarLayout').replaceWith(div);
@@ -185,7 +185,7 @@ var sites = {
 			//Generate the viewer using a loop & AJAX.
 			//FIXME: Is it possible to make sure the pages load in order without using async: false?
 			//FIXME: Is it possible to set the size of the image element before it is loaded (to avoid pop-in)?
-			for(var pageN=1; pageN<_this.page_count; pageN++) {
+			for(var pageN=1; pageN<=_this.page_count; pageN++) {
 				if(pageN == 1) {
 					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).prependTo($('#viewer'));
 				} else {
