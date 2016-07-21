@@ -12,7 +12,7 @@
 // @include      /^http:\/\/bato\.to\/reader.*$/
 // @updated      2016-XX-XX
 // @version      0.0.1
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -34,7 +34,7 @@ var trackBase64    = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYA
 var currentBase64  = 'data:image/gif;base64,R0lGODlhEAAQAHcAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCgBEACwAAAAAEAAQAIeyPgbynlb+znrybh7+umb+9q66WiLyikL+qkr2upb+ljbqRgL2zrr+6tr+wm7qVg7+9ur2pnrufi7uZhr+nk7+smb2kk66Uhr+4pr6jjr+rk7mTgb62qb+ynb++vLufk7+okK2Rg7+1n76tob6ypb+8ub+wn7mXiL2fibqZib2mlL+okrudjr+unb+hir+qk72wqb+lkbmSgL+1rr67uL+wnbqWhb+9vLygjL+jjL+rlbqUgr+3sb++vb+oka2RhL+1oruai72mloAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIyQCJCCRywcCFgxdCDFxIxEABDBiAiOjg4AfDhgUEaEBQ44UGDQQsDnRYA0SLCj1McADhQ4fICwUc5FBQgoQHmytWKHih0ACQDC5c1LxB4kaCGS5W9BSQoUGGEgmMGuWBIobFCxUk3IhQgsaNBjcYzBhA4aqKBw14QLjBlu2MByos/sCxI2rbtjB2BLhABECQDQ943GX7YcIIkQBsLDjhtW0CwwYWAjghw0aQy0FOjIjMEECKFCwOWBCy+aJAACFC/PhxQaTp1wsDAgA7';
 
 /***********************************************************************************************************/
-$.fn.reverse = [].reverse;
+$.fn.reverseObj = [].reverse;
 var sites = {
 	//FIXME: Is there a better way to set site vars?
 	//FIXME: VIEWER: Is it possible to make sure the pages load in order without using async: false?
@@ -95,7 +95,7 @@ var sites = {
 					var div = $('<div/>').append($(response));
 
 					var chapterList = {};
-					$("#chapters > .chlist > li > div > a + * > a", div).reverse().each(function() {
+					$("#chapters > .chlist > li > div > a + * > a", div).reverseObj().each(function() {
 						var chapterTitle = $('+ span.title', this).text().trim();
 						var url           = $(this).attr('href').replace(/^(.*\/)(?:[0-9]+\.html)?$/, '$1');
 
@@ -412,6 +412,7 @@ var sites = {
 			var chapterNParts   = $('select[name=chapter_select]:first > option:selected').text().trim().match(/^(?:Vol\.(\S+) )?(?:Ch.([^\s:]+)):?.*/);
 
 			this.page_count     = $('#page_select:first > option').length;
+			this.is_web_toon    = ($('a[href$=_1_t]').length ? ($('a[href$=_1_t]').text() == 'Want to see this chapter per page instead?' ? 1 : 2) : 0); //0 = no, 1 = yes & long strip, 2 = yes & chapter per page
 
 			this.chapter_hash   = location.hash.substr(1).split('_')[0];
 			this.chapter_number = (chapterNParts[1] ? 'v'+chapterNParts[1]+'/' : '') + 'c'+chapterNParts[2];
@@ -428,7 +429,7 @@ var sites = {
 			//Generate the chapter list to be passed to the topbar.
 			//NOTE: Due to obvious reasons, we can't include the language in the top bar.
 			var chapterList = {};
-			$('select[name=chapter_select]:first > option').reverse().each(function() {
+			$('select[name=chapter_select]:first > option').reverseObj().each(function() {
 				chapterList[$(this).attr('value')] = $(this).text().trim();
 			});
 			setupTopBar(chapterList, 'http://bato.to/reader#'+_this.chapter_hash, function(topBar) {
@@ -466,6 +467,17 @@ var sites = {
 		setupViewer : function() {
 			var _this = this;
 
+			//Add viewer specific styles
+			GM_addStyle('\
+				#reader                  { width: auto; max-width: 95%; text-align: center; }\
+				#reader > .read_img      { background: none; width: auto !important; }\
+				#reader > .read_img  img { margin: 5px auto; width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			var img_list = $('#reader').find('#read_settings + div + div img').map(function(i, e) { return $(e).attr('src'); });
+
 			//Empty the reader
 			$('#reader > *').remove();
 
@@ -476,39 +488,49 @@ var sites = {
 					$('<a/>', {href: _this.manga_url, text: document.title.replace(/ - (?:vol|ch) [0-9]+.*/, '')}))
 			);
 
-			//Add viewer specific styles
-			GM_addStyle('\
-				#reader                  { width: auto; max-width: 95%; text-align: center; }\
-				#reader > .read_img      { background: none; width: auto !important; }\
-				#reader > .read_img  img { margin: 5px auto; width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ min-height: 300px;}\
-				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
-				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
-			');
 
 			//Generate the viewer using a loop & AJAX.
-			for(var pageN=1; pageN<=_this.page_count; pageN++) {
-				if(pageN == 1) {
-					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader_header'));
-				} else {
-					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader > .read_img:last'));
-				}
-				$.ajax({
-					url: 'http://bato.to/areader?id='+_this.chapter_hash+'&p='+pageN,
-					type: 'GET',
-					page: pageN,
-					//async: false,
-					success: function(data) {
-						var image = $(data);
-						image = $('<div/>', {class: 'read_img'}).append($(image).find('img#comic_page'));
-
-						//Add page number below the image
-						$('<div/>', {class: 'pageNumber'})
-						               .append($('<div/>', {class: 'number', text: this.page}))
-									   .appendTo(image);
-
-						$('#page-'+this.page).replaceWith(image);
+			if(_this.is_web_toon !== 1) {
+				for(var pageN=1; pageN<=_this.page_count; pageN++) {
+					if(pageN == 1) {
+						$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader_header'));
+					} else {
+						$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader > .read_img:last'));
 					}
-				});
+					$.ajax({
+						url: 'http://bato.to/areader?id='+_this.chapter_hash+'&p='+pageN,
+						type: 'GET',
+						page: pageN,
+						//async: false,
+						success: function(data) {
+							var image = $(data);
+							image = $('<div/>', {class: 'read_img'}).append($(image).find('img#comic_page'));
+
+							//Add page number below the image
+							$('<div/>', {class: 'pageNumber'})
+										   .append($('<div/>', {class: 'number', text: this.page}))
+										   .appendTo(image);
+
+							$('#page-'+this.page).replaceWith(image);
+						}
+					});
+				}
+			} else {
+				//Bato.to has an option for webtoons to show all chapters on a single page (with a single ajax), we need to do stuff differently if this happens.
+				var img_list_count = img_list.length;
+				for(var pageN=1; pageN<=img_list_count; pageN++) {
+					var image = $('<div/>', {class: 'read_img'}).append(
+					                $('<img/>', {src: img_list[pageN-1]})).append(
+					                $('<div/>', {class: 'pageNumber'}).append(
+					                    $('<div/>', {class: 'number', text: pageN})));
+
+
+					if(pageN == 1) {
+						$(image).insertAfter($('#reader_header'));
+					} else {
+						$(image).insertAfter($('#reader > .read_img:last'));
+					}
+				}
 			}
 
 			//Auto-track chapter if enabled.
@@ -606,7 +628,7 @@ function setupTrackerOptions() {
 function setupTopBar(chapterObj, currentChapter, callback) {
 	/* This is pretty much taken completely from the AllMangasReader extension */
 	GM_addStyle("\
-		#TrackerBar { position: fixed !important; z-index: 10000000 !important; top: 0 !important; width: 100% !important; /*text-align:center!important; height:30px!important;*/ opacity: .9 !important; -webkit-transition: all .4s ease-in-out !important; padding: 0 !important; margin: 0 !important; }\
+		#TrackerBar { height: 0; position: fixed !important; z-index: 10000000 !important; top: 0 !important; width: 100% !important; /*text-align:center!important; height:30px!important;*/ opacity: .9 !important; -webkit-transition: all .4s ease-in-out !important; padding: 0 !important; margin: 0 !important; }\
 		#TrackerBar:hover { opacity: 1 !important; }\
 		#TrackerBarIn { padding: 2px 15px !important; margin: 0 !important; border-bottom-left-radius: 6px 6px !important; border-bottom-right-radius: 6px 6px !important; border: 1px solid #CCC !important; border-top: 0 !important; opacity: 1 !important; background-color: #fff !important; /*display:inline-block!important;*/ padding-left: 15px !important; padding-right: 15px !important; }\
 		#TrackerBarIn img,.TrackerBarLayout img { vertical-align: middle !important; margin-left: 5px !important; margin-right: 5px !important; cursor: pointer !important; }\
