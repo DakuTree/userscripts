@@ -4,7 +4,7 @@
 // @author       Daku (admin@codeanimu.net)
 // @description  A cross-site manga tracker.
 // @homepageURL  https://tracker.codeanimu.net
-// @supportURL   https://github.com/DakuTree/userscripts/issues
+// @supportURL   https://github.com/DakuTree/manga-tracker/issues
 // @include      /^https:\/\/(?:(?:dev|test)\.)?tracker\.codeanimu\.net\/.*$/
 // @include      /^https?:\/\/localhost\/.*\/manga-tracker\/html\/.*$/
 // @include      /^http:\/\/mangafox\.me\/manga\/.*\/(.*\/)?.*\/.*$/
@@ -382,12 +382,147 @@ var sites = {
 			}
 		}
 	},
-	'bato.to' : function() {
+
+	'bato.to' : {
+		init : function() {
+			var _this = this;
+
+			//Bato.to loads the image page AFTER page load via AJAX. We need to wait for this to load.
+			var dfd = $.Deferred();
+			var checkSelector = setInterval(function () {
+				if ($('#reader').text() !== 'Loading...') {
+					//AJAX has loaded, resolve deferred.
+					dfd.resolve();
+					clearInterval(checkSelector);
+				} else {
+					console.log("forever loading");
+				}
+			}, 1000);
+			dfd.done(function () {
+				_this.setObjVars();
+
+				_this.stylize();
+
+				_this.setupTopBar();
+
+				_this.setupViewer();
+			});
+		},
+		setObjVars : function() {
+			var chapterNParts   = $('select[name=chapter_select]:first > option:selected').text().trim().match(/^(?:Vol\.(\S+) )?(?:Ch.([^\s:]+)):?.*/);
+
+			this.page_count     = $('#page_select:first > option').length;
+
+			this.chapter_hash   = location.hash.substr(1).split('_')[0];
+			this.chapter_number = (chapterNParts[1] ? 'v'+chapterNParts[1]+'/' : '') + 'c'+chapterNParts[2];
+
+			this.manga_url      = $('#reader a[href*="/comic/"]:first').attr('href');
+			this.manga_language = $('select[name=group_select]:first > option:selected').text().trim().replace(/.* - ([\S]+)$/, '$1');
+		},
+		stylize : function() {
+			//???
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+			//Generate the chapter list to be passed to the topbar.
+			//NOTE: Due to obvious reasons, we can't include the language in the top bar.
+			var chapterList = {};
+			$('select[name=chapter_select]:first > option').reverse().each(function() {
+				chapterList[$(this).attr('value')] = $(this).text().trim();
+			});
+			setupTopBar(chapterList, 'http://bato.to/reader#'+_this.chapter_hash, function(topBar) {
+				//Setup the tracking click event.
+				$(topBar).on('click', '#trackCurrentChapter', function(e) {
+					e.preventDefault();
+
+					_this.trackChapter(true);
+				});
+			});
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'bato.to',
+						'title'   : _this.manga_url + ':--:' + _this.manga_language,
+						//real title
+						'chapter' : _this.chapter_hash + ':--:' + _this.chapter_number
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			//Empty the reader
+			$('#reader > *').remove();
+
+			$('#reader').append(
+				$('<div/>', {id: 'reader_header', style: 'font-weight: bolder;'}).append(
+					$('<a/>', {href: 'http://bato.to/reader#'+_this.chapter_hash, text: _this.chapter_number})).append(
+					'  ----  ').append(
+					$('<a/>', {href: _this.manga_url, text: document.title.replace(/ - (?:vol|ch) [0-9]+.*/, '')}))
+			);
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#reader                  { width: auto; max-width: 95%; text-align: center; }\
+				#reader > .read_img      { background: none; width: auto !important; }\
+				#reader > .read_img  img { margin: 5px auto; width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			//Generate the viewer using a loop & AJAX.
+			for(var pageN=1; pageN<=_this.page_count; pageN++) {
+				if(pageN == 1) {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader_header'));
+				} else {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#reader > .read_img:last'));
+				}
+				$.ajax({
+					url: 'http://bato.to/areader?id='+_this.chapter_hash+'&p='+pageN,
+					type: 'GET',
+					page: pageN,
+					//async: false,
+					success: function(data) {
+						var image = $(data);
+						image = $('<div/>', {class: 'read_img'}).append($(image).find('img#comic_page'));
+
+						//Add page number below the image
+						$('<div/>', {class: 'pageNumber'})
+						               .append($('<div/>', {class: 'number', text: this.page}))
+									   .appendTo(image);
+
+						$('#page-'+this.page).replaceWith(image);
+					}
+				});
+			}
+
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
+				}
+			});
+		}
 	}
 };
 
 /********************** SCRIPT *********************/
-var main_site = 'https://tracker.codeanimu.net';
+var main_site = 'https://dev.tracker.codeanimu.net';
 
 var config = JSON.parse(GM_getValue('config') || '{"init": true}'); //TODO: GET OPTIONS FROM LOCALSTORAGE, SET THESE VIA SITE?, NAG USER IF NOT SET OPTIONS.
 console.log(config);
