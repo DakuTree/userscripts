@@ -559,8 +559,8 @@ var sites = {
 				this.title_url   = $('#chapter-title > b > a').attr('href').replace(/.*\/(.*)$/, '$1');
 				this.chapter_url = location.pathname.split(this.title_url + '_').pop(); //There is really no other valid way to get the chapter_url :|
 			} else {
-				this.title_url   = location.pathname;
-				this.chapter_url = 'Oneshot';
+				this.title_url   = location.pathname.substr(10);
+				this.chapter_url = 'oneshot';
 			}
 		},
 		stylize : function() {
@@ -628,7 +628,7 @@ var sites = {
 					'api-key' : config['api-key'],
 					'manga'   : {
 						'site'    : 'dynasty-scans.com',
-						'title'   : _title_url,
+						'title'   : _this.title_url + ':--:' + (+_this.is_one_shot),
 						'chapter' : _this.chapter_url
 					}
 				};
