@@ -10,6 +10,7 @@
 // @include      /^http:\/\/mangafox\.me\/manga\/.*\/(.*\/)?.*\/.*$/
 // @include      /^http:\/\/(?:www\.)?mangahere\.co\/manga\/.*\/.*\/?.*\/.*$/
 // @include      /^http:\/\/bato\.to\/reader.*$/
+// @include      /^http:/\/dynasty-scans\.com\/chapters\/.*$/
 // @updated      2016-XX-XX
 // @version      0.0.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
@@ -540,6 +541,149 @@ var sites = {
 				}
 			});
 		}
+	},
+	'dynasty-scans.com' : {
+		init : function() {
+			this.setObjVars();
+
+			this.stylize();
+
+			this.setupTopBar();
+
+			this.setupViewer();
+		},
+		setObjVars : function() {
+			this.is_one_shot = !$('#chapter-title > b > a').length;
+
+			if(!this.is_one_shot) {
+				this.title_url   = $('#chapter-title > b > a').attr('href').replace(/.*\/(.*)$/, '$1');
+				this.chapter_url = location.pathname.split(this.title_url + '_').pop(); //There is really no other valid way to get the chapter_url :|
+			} else {
+				this.title_url   = location.pathname;
+				this.chapter_url = 'Oneshot';
+			}
+		},
+		stylize : function() {
+			//These buttons aren't needed since we have our own viewer.
+			$('#chapter-actions > div > .btn-group:last, #download_page').remove();
+			$('#reader').addClass('noresize');
+
+			//Topbar covers a bunch of nav buttons.
+			GM_addStyle("\
+				#content > .navbar > .navbar-inner { padding-top: 42px; }");
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+			if(!_this.is_one_shot) {
+				//Sadly, we don't have any form of inline-reader. We need to AJAX the title page for this one.
+				$.ajax({
+					url: 'http://dynasty-scans.com/series/'+_this.title_url,
+					beforeSend: function(xhr) {
+						xhr.setRequestHeader("Cache-Control", "no-cache, no-store");
+						xhr.setRequestHeader("Pragma", "no-cache");
+					},
+					cache: false,
+					success: function(response) {
+						response = response.replace(/^[\S\s]*(<dl class="chapter-list">[\S\s]*<\/dl>)[\S\s]*$/, '$1');
+						var div = $('<div/>').append($(response));
+
+						var chapterList = {};
+						$(".chapter-list > dd > a.name", div).each(function() {
+							var chapterTitle = $(this).text().trim();
+							var url          = $(this).attr('href');
+
+							chapterList[url] = chapterTitle;
+						});
+
+						setupTopBar(chapterList, location.pathname, function(topBar) {
+							//Setup the tracking click event.
+							$(topBar).on('click', '#trackCurrentChapter', function(e) {
+								e.preventDefault();
+
+								_this.trackChapter(true);
+							});
+						});
+					}
+				});
+			} else {
+				var chapterList = {};
+				chapterList[location.pathname] = 'Oneshot';
+				setupTopBar(chapterList, location.pathname, function(topBar) {
+					//Setup the tracking click event.
+					$(topBar).on('click', '#trackCurrentChapter', function(e) {
+						e.preventDefault();
+
+						_this.trackChapter(true);
+					});
+				});
+			}
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'dynasty-scans.com',
+						'title'   : _title_url,
+						'chapter' : _this.chapter_url
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			//We could use unsafeWindow, and load this properly, but I'd like to avoid doing that if possible, even if it means using a hacky method like this.
+			var img_list = $('script:contains("/system/releases/")').html().match(/"(\/system[^"]+)"/g).map(function(e, i) {
+				return e.replace(/^"|"$/g, '');
+			});
+
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#reader                  { width: auto; max-width: 95%; text-align: center; }\
+				#reader > .read_img      { background: none; width: auto !important; }\
+				#reader > .read_img  img { margin: 5px auto; width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			//Empty the reader
+			$('#reader > *').remove();
+
+			var img_list_count = img_list.length;
+			for(var pageN=1; pageN<=img_list_count; pageN++) {
+				var image = $('<div/>', {class: 'read_img'}).append(
+								$('<img/>', {src: img_list[pageN-1]})).append(
+								$('<div/>', {class: 'pageNumber'}).append(
+									$('<div/>', {class: 'number', text: pageN})));
+
+
+				if(pageN == 1) {
+					$(image).appendTo($('#reader'));
+				} else {
+					$(image).insertAfter($('#reader > .read_img:last'));
+				}
+			}
+
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
+				}
+			});
+		}
 	}
 };
 
@@ -636,6 +780,7 @@ function setupTopBar(chapterObj, currentChapter, callback) {
 		#TrackerBarIn .buttonTracker,.TrackerBarLayout .buttonTracker { vertical-align: middle !important; }\
 		#TrackerBarIn select,.TrackerBarLayout select { vertical-align: middle !important; }\
 		#TrackerBarIn a,.TrackerBarLayout a { vertical-align: middle !important; }\
+		#TrackerBarIn select { margin: 0 !important; }\
 		#TrackerBarInLtl { padding: 0 !important; margin: 0 !important; opacity: .7 !important; }\
 		#TrackerBarInLtl:hover { opacity: 1 !important; }\
 		a.buttonTracker { display: inline-block; min-width: 100px; border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; text-align: center; cursor: pointer; font-size: 10pt; color: rgb(0, 0, 0); text-decoration: none; padding: 2px; border-width: 1px; border-style: solid; border-color: rgb(221, 221, 221); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(255, 255, 255)), to(rgb(238, 238, 238))); border-radius: 5px; transition: all 0.4s ease-in-out; margin: 5px; }\
