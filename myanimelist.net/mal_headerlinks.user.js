@@ -5,13 +5,11 @@
 // @description  Re-adds the old header profile & list links after MAL decided to move them.
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      http://myanimelist.net/*
-// @exclude      http://myanimelist.net/animelist/*
-// @exclude      http://myanimelist.net/mangalist/*
+// @include      /^http[s]?:\/\/myanimelist\.net\/(?!(?:(?:anime|manga)list).*$).*$/
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
-// @updated      2016-06-03
-// @version      1.0.15
+// @updated      2016-07-23
+// @version      1.0.16
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
