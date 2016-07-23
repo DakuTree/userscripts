@@ -6,11 +6,11 @@
 // @homepageURL  https://tracker.codeanimu.net
 // @supportURL   https://github.com/DakuTree/manga-tracker/issues
 // @include      /^https:\/\/(?:(?:dev|test)\.)?tracker\.codeanimu\.net\/.*$/
-// @include      /^https?:\/\/localhost\/.*\/manga-tracker\/html\/.*$/
-// @include      /^http:\/\/mangafox\.me\/manga\/.*\/(.*\/)?.*\/.*$/
-// @include      /^http:\/\/(?:www\.)?mangahere\.co\/manga\/.*\/.*\/?.*\/.*$/
+// @include      /^http:\/\/mangafox\.me\/manga\/.+\/(?:.*\/)?.*\/.*$/
+// @include      /^http:\/\/(?:www\.)?mangahere\.co\/manga\/.+\/.*\/?.*\/.*$/
 // @include      /^http:\/\/bato\.to\/reader.*$/
-// @include      /^http:/\/dynasty-scans\.com\/chapters\/.*$/
+// @include      /^http:/\/dynasty-scans\.com\/chapters\/.+$/
+// @include      /^http:\/\/www\.mangapanda\.com\/(?!(?:search|privacy|latest|alphabetical|popular|random)).+\/.+$/
 // @updated      2016-XX-XX
 // @version      0.0.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
@@ -542,6 +542,7 @@ var sites = {
 			});
 		}
 	},
+
 	'dynasty-scans.com' : {
 		init : function() {
 			this.setObjVars();
@@ -683,6 +684,148 @@ var sites = {
 					_this.trackChapter();
 				}
 			});
+		}
+	},
+
+	'www.mangapanda.com' : {
+		init : function() {
+			//MangaPanda is tricky. For whatever stupid reason, it decided to not use a URL format which actually seperates its manga URLs from every other page on the site.
+			//I've went and already filtered a bunch of URLs out in the include regex, but since it may not match everything, we have to do an additional check here.
+
+			if($('#topchapter, #chapterMenu, #bottomchapter').length === 3) {
+				//MangaPanda is another site which uses the MangaFox layout. Is this just another thing like FoolSlide?
+
+				this.setObjVars();
+
+				this.stylize();
+
+				this.setupTopBar();
+
+				this.setupViewer();
+			}
+		},
+		setObjVars : function() {
+			var segments     = window.location.pathname.split( '/' );
+
+			this.page_count  = parseInt($('#topchapter #selectpage select > option:last').text());
+			this.title       = segments[1];
+			this.chapter     = segments[2];
+
+			this.manga_url   = 'http://www.mangapanda.com/'+this.title+'/';
+			this.chapter_url = 'http://www.mangapanda.com/'+this.title+'/'+this.chapter+'/';
+		},
+		stylize : function() {
+			//Remove page count from the header, since all pages are loaded at once now.
+			$('#mangainfo > div:first .c1').remove();
+
+			//Float title in the header to the right. This just looks nicer and is a bit easier to read.
+			$('#mangainfo > div + div:not(.clear)').css('float', 'right');
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+			//MangaPanda is tricky here. The chapter list is loaded via AJAX, and not a <script> tag. As far as I can tell, we can't watch for this to load without watching the actual element.
+			var checkExist = setInterval(function() {
+				if($('#topchapter > #selectmanga > select > option').length) {
+					var chapterList = {};
+					$('#topchapter > #selectmanga > select > option').each(function() {
+						chapterList[$(this).attr('value')] = $(this).text().trim();
+					});
+					setupTopBar(chapterList, '/'+_this.title+'/'+_this.chapter, function(topBar) {
+						//Remove MangaFox's chapter navigation since we now have our own. Also remove leftover whitespace.
+						$('#topchapter > #mangainfo ~ div, #bottomchapter > #mangainfo ~ div').remove();
+
+						//Setup the tracking click event.
+						$(topBar).on('click', '#trackCurrentChapter', function(e) {
+							e.preventDefault();
+
+							_this.trackChapter(true);
+						});
+					});
+
+					clearInterval(checkExist);
+				}
+			}, 500);
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'www.mangapanda.com',
+						'title'   : _this.title,
+						'chapter' : 'c'+_this.chapter
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			//Remove the current page, because it might not always be the first.
+			$('#imgholder').attr('id', 'viewer');
+			$('#viewer > *').remove();
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#viewer                  { width: auto; max-width: 95%; }\
+				#viewer > .read_img      { background: none; }\
+				#viewer > .read_img  img { width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ background: url("http://mangafox.me/media/loading.gif") no-repeat center; min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; height: 18px; font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 17px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important; margin-top: 3px !important;\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+			$('#viewer').parent().removeAttr('width');
+			$('#viewer').closest('table').css('text-align', 'center');
+
+			//Generate the viewer using a loop & AJAX.
+			//FIXME: Is it possible to make sure the pages load in order without using async: false?
+			//FIXME: Is it possible to set the size of the image element before it is loaded (to avoid pop-in)?
+			for(var pageN=1; pageN<=_this.page_count; pageN++) {
+				if(pageN == 1) {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).prependTo($('#viewer'));
+				} else {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#viewer > .read_img:last'));
+				}
+				$.ajax({
+					url: _this.chapter_url + pageN,
+					type: 'GET',
+					page: pageN,
+					//async: false,
+					success: function(data) {
+						var image = $(data.replace(/^[\s\S]+(<div id="imgholder">.+(?:.+)?(?=<\/div>)<\/div>)[\s\S]+$/, '$1'));
+						image = $('<div/>', {class: 'read_img'}).append($(image).find('img').removeAttr('height'));
+
+						//Add page number below the image
+						$('<div/>', {class: 'pageNumber'})
+						               .append($('<div/>', {class: 'number', text: this.page}))
+									   .appendTo(image);
+
+						$('#page-'+this.page).replaceWith(image);
+					}
+				});
+			}
+
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
+				}
+			});
+		}
+	},
+
+	'mangastream.com' : {
+		init : function() {
 		}
 	}
 };
