@@ -757,7 +757,7 @@ var sites = {
 					'manga'   : {
 						'site'    : 'www.mangapanda.com',
 						'title'   : _this.title,
-						'chapter' : 'c'+_this.chapter
+						'chapter' : _this.chapter
 					}
 				};
 
