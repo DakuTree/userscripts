@@ -11,6 +11,7 @@
 // @include      /^http:\/\/bato\.to\/reader.*$/
 // @include      /^http:/\/dynasty-scans\.com\/chapters\/.+$/
 // @include      /^http:\/\/www\.mangapanda\.com\/(?!(?:search|privacy|latest|alphabetical|popular|random)).+\/.+$/
+// @include      /^https?:\/\/mangastream.com\/r\/.+\/.+\/[0-9]+(?:\/[0-9]+)?$/
 // @updated      2016-XX-XX
 // @version      0.0.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
@@ -826,6 +827,144 @@ var sites = {
 
 	'mangastream.com' : {
 		init : function() {
+			this.setObjVars();
+
+			this.stylize();
+
+			this.setupTopBar();
+
+			this.setupViewer();
+		},
+		setObjVars : function() {
+			var segments     = window.location.pathname.split( '/' );
+
+			this.https       = location.protocol.slice(0, -1);
+
+			this.page_count  = parseInt($('.controls ul:last > li:last').text().replace(/[^0-9]/g, ''));
+			this.title       = segments[2];
+			this.chapter     = segments[3]+'/'+segments[4];
+
+			this.manga_url   = this.https+'://mangastream.com/manga/'+this.title;
+			this.chapter_url = this.https+'://mangastream.com/r/'+this.title+'/'+this.chapter;
+		},
+		stylize : function() {
+			GM_addStyle("\
+				.page { margin-right: 0 !important; }\
+				#reader-nav { margin-bottom: 0; }");
+
+			$('.page-wrap > #reader-sky').remove(); //Ad block
+		},
+		setupTopBar : function() {
+			var _this = this;
+
+				$.ajax({
+					url: _this.manga_url,
+					beforeSend: function(xhr) {
+						xhr.setRequestHeader("Cache-Control", "no-cache, no-store");
+						xhr.setRequestHeader("Pragma", "no-cache");
+					},
+					cache: false,
+					success: function(response) {
+						response = response.replace(/^[\S\s]*(<body>[\S\s]*<\/body>)[\S\s]*$/, '$1');
+						var body = $(response);
+
+						var chapterList = {};
+						$('.content table tr:not(:first) a', body).reverseObj().each(function() {
+							var chapterTitle = $(this).text().trim();
+							var url          = $(this).attr('href');
+
+							chapterList[url] = chapterTitle;
+						});
+
+						console.log(_this.chapter_url+'/1');
+						setupTopBar(chapterList, _this.chapter_url+'/1', function(topBar) {
+							//Setup the tracking click event.
+							$(topBar).on('click', '#trackCurrentChapter', function(e) {
+								e.preventDefault();
+
+								_this.trackChapter(true);
+							});
+						});
+					}
+				});
+		},
+		trackChapter : function(askForConfirmation) {
+			var _this = this;
+			askForConfirmation = (typeof askForConfirmation !== 'undefined' ? askForConfirmation : false);
+
+			if(config['api-key']) {
+				var json = {
+					'api-key' : config['api-key'],
+					'manga'   : {
+						'site'    : 'mangastream.com',
+						'title'   : _this.title,
+						'chapter' : _this.chapter
+					}
+				};
+
+				if(!askForConfirmation || askForConfirmation && confirm("This action will reset your reading state for this manga and this chapter will be considered as the latest you have read. Do you confirm this action?")) {
+					//TODO: Add some basic checking for success here.
+					$.post(main_site + '/ajax/update_tracker', json);
+				}
+			} else {
+				alert('API Key isn\'t set.\nHave you done the initial userscript setup?');
+			}
+		},
+		setupViewer : function() {
+			var _this = this;
+
+			$('.page').attr('id', 'viewer');
+			$('#viewer > *').remove();
+
+			//Add viewer specific styles
+			GM_addStyle('\
+				#viewer                  { width: auto; max-width: 95%; margin: 0 auto !important; }\
+				#viewer > .read_img      { background: none; }\
+				#viewer > .read_img  img { width: auto; max-width: 95%; border: 5px solid #a9a9a9; /*background: #FFF repeat-y;*/ background: url("http://mangafox.me/media/loading.gif") no-repeat center; min-height: 300px;}\
+				.pageNumber              { border-image-source: initial; border-image-slice: initial; border-image-width: initial; border-image-outset: initial; border-image-repeat: initial; border-collapse: collapse; background-color: black; color: white; /*height: 18px; */font-size: 12px; font-family: Verdana; font-weight: bold; position: relative; bottom: 11px; width: 50px; text-align: center; opacity: 0.75; border-width: 2px; border-style: solid; border-color: white; border-radius: 16px !important; margin: 0px auto !important; padding: 0px !important; border-spacing: 0px !important;}\
+				.pageNumber .number      { border-collapse: collapse; text-align: center; display: table-cell; width: 50px; height: 18px; vertical-align: middle; border-spacing: 0px !important; padding: 0px !important; margin: 0px !important;\
+			');
+
+			var real_title = $('.btn-reader-chapter > a > span:first').text();
+			$('.subnav').replaceWith(
+				$('<div/>', {style: 'font-weight: bolder; text-align: center;'}).append(
+					$('<a/>', {href: _this.chapter_url, text: 'c'+_this.chapter.split('/')[0]})).append(
+					'  ----  ').append(
+					$('<a/>', {href: _this.manga_url, text: real_title}))
+			);
+
+			//Generate the viewer using a loop & AJAX.
+			for(var pageN=1; pageN<=_this.page_count; pageN++) {
+				if(pageN == 1) {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).prependTo($('#viewer'));
+				} else {
+					$('<div/>', {id: 'page-'+pageN, class: 'read_img'}).insertAfter($('#viewer > .read_img:last'));
+				}
+				$.ajax({
+					url: _this.chapter_url + '/'+pageN,
+					type: 'GET',
+					page: pageN,
+					//async: false,
+					success: function(data) {
+						var image = $(data.replace(/^[\s\S]+(<div class="page">.+(?:.+)?(?=<\/div>)<\/div>)[\s\S]+$/, '$1'));
+						image = $('<div/>', {class: 'read_img'}).append($(image).find('img'));
+
+						//Add page number below the image
+						$('<div/>', {class: 'pageNumber'})
+						               .append($('<div/>', {class: 'number', text: this.page}))
+									   .appendTo(image);
+
+						$('#page-'+this.page).replaceWith(image);
+					}
+				});
+			}
+
+			//Auto-track chapter if enabled.
+			$(window).on("load", function() {
+				if(config.auto_track && config.auto_track == 'on') {
+					_this.trackChapter();
+				}
+			});
 		}
 	}
 };
