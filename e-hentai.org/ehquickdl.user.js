@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/g\/.*$/
-// @updated      2015-10-09
-// @version      1.2.0
+// @updated      2016-08-07
+// @version      1.2.1
 // ==/UserScript==
 
 /******SETTINGS******/
@@ -40,7 +40,7 @@ a.addEventListener('click', function() {
 
 	if(downloadGallery) {
 		var http   = new XMLHttpRequest();
-		var params = "dlcheck=Download Archive";
+		var params = "dlcheck=Download Original Archive";
 		http.open("POST", location.origin+'/archiver.php?'+xs, true);
 		http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
