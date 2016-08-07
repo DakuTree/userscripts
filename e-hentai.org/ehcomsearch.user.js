@@ -5,9 +5,9 @@
 // @description  Compacts the search into the topbar, saving vertical space. Supports E-Hentai & EXHentai.
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/.*$/
-// @updated      2016-05-01
-// @version      2.0.12
+// @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/(?!archiver\.php).*$/
+// @updated      2016-08-07
+// @version      2.0.13
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-start
