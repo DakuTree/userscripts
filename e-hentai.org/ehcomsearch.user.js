@@ -15,6 +15,7 @@
 /* jshint -W097, browser:true, devel:true, multistr: true */
 
 var domain = (location.host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1].replace('-', '');
+var https  = location.protocol.replace(/.$/, '');
 GM_addStyle("#toppane, #nb {display: none !important;}"); //Hide elements before load
 
 if(typeof window.jQuery  === "undefined"){
@@ -111,7 +112,7 @@ function main(){
 		$('<li/>', {style: "border-right: 1px solid "+color3+"; width: 15px !important; min-width: 15px; max-width: 15px;"}).append(
             $('<a/>', {href: '#', text: '#', id: 'addenglish', style: 'border-right: 0'})).appendTo(nav);
 		$('<li/>', {style: "width: 506px !important; min-width: 506px; max-width: 506px;"}).append(
-			$('<form/>', {action: "http://"+location.hostname, method: "GET"}).append(
+			$('<form/>', {action: https+"://"+location.hostname, method: "GET"}).append(
 				$('<div/>').append(
 				$('<input/>', {type: "text",   name: "f_search", value: v.f_search,     class: "stdinput", onfocus: "if(this.value=='Search Keywords') this.value = '';", size: "50", maxlength: "200"})).append(
 				$('<input/>', {type: "submit", name: "f_apply",  value: "Apply Filter", class: "stdbtn", style: "width: 70px"})).append(
@@ -211,7 +212,7 @@ function main(){
 				}
 				else if(id == 'fsdiv'){
 					$('#'+id).append(
-						$('<form/>', {action: 'http://ul.'+location.hostname.replace(/^g\./, '')+'/image_lookup.php', method: 'post', enctype: 'multipart/form-data'}).append(
+						$('<form/>', {action: https+'://'+(domain == 'ehentai' ? 'upload.e-hentai.org' : 'exhentai.org/upload')+'image_lookup.php', method: 'post', enctype: 'multipart/form-data'}).append(
 							$('<div/>').append(
 								$('<p/>', {text: 'If you want to combine a file search with a category/keyword search, upload the file first.', style: 'font-weight: bold;'})).append(
 								$('<p/>', {text: 'Select a file to upload, then hit File Search. All public galleries containing this exact file will be displayed.'})).append(
