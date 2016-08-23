@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/(?!archiver\.php).*$/
-// @updated      2016-08-07
-// @version      2.0.13
+// @updated      2016-08-23
+// @version      2.0.14
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-start
@@ -263,16 +263,16 @@ function setupToggleCategory() {
 	//This is "more or less" the built-in "toggle_category" function.
 	//Sadly that doesn't get loaded on gallery pages, so we use this instead.
 	$('body').on('click', 'img[id^=f_]', function(){
-		var e         = $(this), //img
-			input     = $(e).prev(), //input
+		var img       = $(this), //img
+			input     = $(img).prev(), //input
 			input_val = parseInt($(input).val());
 
 		if(input_val){
-			$(d).val(0);
-			$(e).attr('src', $(e).attr('src').replace('.png', '_d.png'));
+			$(input).val(0);
+			$(img).attr('src', $(img).attr('src').replace('.png', '_d.png'));
 		}else{
-			$(d).val(1);
-			$(e).attr('src', $(e).attr('src').replace('_d.png', '.png'));
+			$(input).val(1);
+			$(input).attr('src', $(img).attr('src').replace('_d.png', '.png'));
 		}
 	});
 }
