@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/(?!archiver\.php).*$/
 // @updated      2016-08-23
-// @version      2.0.14
+// @version      2.0.15
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-start
