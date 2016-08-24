@@ -10,17 +10,17 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/history\/.*$/
-// @updated      2016-03-09
-// @version      2.1.4
+// @updated      2016-08-24
+// @version      2.2.0
 // @run-at       document-idle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
-var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
+var backend = "https://codeanimu.net/userscripts/myanimelist.net/backend/";
 var dev = false; //Enable if you want some dev stuff
 
 $(document).ready(function() {
-	if(dev == true){
+	if(dev === true){
 		if(jQuery.fn.jquery !== '2.2.1'){
 			alert('jQuery mismatch!\nRunning '+jQuery.fn.jquery+'.\nExpected 2.2.1.');
 		}
@@ -32,12 +32,12 @@ $(document).ready(function() {
 
 			error = true;
 			return true;
-		}
+		};
 	}
 
 	var userid = (document.cookie.match('(^|; )(A|Y)=([^;]*)')||0)[3] || find_userid() || 0,
 	    type;
-	if(userid == 0){ dev_alert('userid = 0'); return false; }
+	if(userid === 0){ dev_alert('userid = 0'); return false; }
 
 	if(/myanimelist\.net\/history\/.*/.test(self.location.href)){
 		dev_log('history page matched');
@@ -49,11 +49,11 @@ $(document).ready(function() {
 			$('<li/>').append(
 				$('<a/>', {text: 'Offsite MAL History', href: backend+'mh_index.php?'+$.param({userid: userid, type: type, page: 1, force: 'html'})})
 			)
-		)
+		);
 
 		get_history(type, 1);
 
-		$('<a/>', {text: 'Show more..', href: '#', id: 'history_link', 'style': 'display: block; text-align: center;', 'data-curpage': 1}).insertAfter('#content > div > table')
+		$('<a/>', {text: 'Show more..', href: '#', id: 'history_link', 'style': 'display: block; text-align: center;', 'data-curpage': 1}).insertAfter('#content > div > table');
 		$('#history_link').click(function(e){
 			var nextpage = parseInt($(this).attr('data-curpage')) + 1;
 			$(this).attr('data-curpage', nextpage);
@@ -257,12 +257,12 @@ $(document).ready(function() {
 
 			//#2.1: Check if user is online, and if so, get username.
 			var userName;
-			$.get('http://myanimelist.net/panel.php', function(data) {
+			$.get('https://myanimelist.net/panel.php', function(data) {
 				userName = data.match(/\/profile\/(.*?)"/)[1];
 				console.log(userName);
 				if(userName) {
 					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
-					$.get('http://myanimelist.net/profile/'+userName, function(data) {
+					$.get('https://myanimelist.net/profile/'+userName, function(data) {
 						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
 						userid = data.match(/name="profileMemId"\s*[a-zA-Z="']*\s*value="([0-9]+)">/)[1];
 						if(userid) {
@@ -285,6 +285,6 @@ $(document).ready(function() {
 		if(dev){ alert('ERROR (MH): '+error); }
 	}
 
-	function dev_log(text) { if(dev == true){ console.log('DEV: '+text); } }
-	function dev_alert(text) { if(dev == true){ alert('DEV: '+text); } }
+	function dev_log(text) { if(dev === true){ console.log('DEV: '+text); } }
+	function dev_alert(text) { if(dev === true){ alert('DEV: '+text); } }
 });

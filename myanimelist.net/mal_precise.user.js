@@ -9,12 +9,12 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga)\.php\?id\=.*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/panel\.php\?go\=(edit|add).*$/
 // @include      /^http[s]?:\/\/myanimelist\.net\/editlist\.php\?type\=(anime|manga).*$/
-// @updated      2016-04-12
-// @version      2.2.5
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
+// @updated      2016-08-24
+// @version      2.2.6
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
 
-var backend = "http://codeanimu.net/userscripts/myanimelist.net/backend/";
+var backend = "https://codeanimu.net/userscripts/myanimelist.net/backend/";
 var fontsize = "9px"; //Change this if you are using a non-standard font-size (This font-size only applies to scores you have just changed).
 var dev = false; //Enable if you want some dev stuff
 
@@ -187,12 +187,12 @@ $(document).ready(function() {
 						console.log(d);
 						//Unlike the /manga/ page, we can't simply check the return data for the entry_id
 						//Instead we need to send a second AJAX request. This is why I hate MAL.
-						$.get("http://myanimelist.net/manga.php", {id: $('#mangaid').val()}, function(data){
+						$.get("https://myanimelist.net/manga.php", {id: $('#mangaid').val()}, function(data){
 							db_id = ((db_id = data.match(/panel\.php\?go=editmanga&id=([0-9]+)/)) ? db_id[1] : null);
 							if(typeof $('#myinfo_score').val() != 'undefined' && $('#myinfo_score').val() !== '0'){
 								update_pscores(db_id, parseInt($('select[name=score]').val())+'.'+$('#precise_score').val(), false);
 							}
-							location.href = 'http://myanimelist.net/manga/'+$('#mangaid').val();
+							location.href = 'https://myanimelist.net/manga/'+$('#mangaid').val();
 						});
 					});
 				}else{
@@ -256,12 +256,12 @@ $(document).ready(function() {
 
 			//#2.1: Check if user is online, and if so, get username.
 			var userName;
-			$.get('http://myanimelist.net/panel.php', function(data) {
+			$.get('https://myanimelist.net/panel.php', function(data) {
 				userName = data.match(/\/profile\/(.*?)"/)[1];
 				console.log(userName);
 				if(userName) {
 					//2.2: Check profile for userID. It may be possible for the userID to still not exist.
-					$.get('http://myanimelist.net/profile/'+userName, function(data) {
+					$.get('https://myanimelist.net/profile/'+userName, function(data) {
 						//since we're using an old version of jQuery, parsing the HTML is painful, so we're doing it the hacky way.
 						userid = data.match(/name="profileMemId" value="([0-9]+)"/)[1];
 						if(userid) {

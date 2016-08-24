@@ -1,5 +1,5 @@
 <?php
-	header('Access-Control-Allow-Origin: http://myanimelist.net');
+	header('Access-Control-Allow-Origin: https://myanimelist.net');
 	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate'); #Make sure file isn't cached
 	header('Expires: Wed, 01 Jan 1995 12:00:00 GMT');
 
@@ -20,7 +20,7 @@
 		die($missingParams);
 	}
 	if(!ctype_digit($_GET['userid']) || !in_array($_GET['type'], array(0, 1, 2, 6)) || !ctype_digit($_GET['type_id'])) die('Incorrect Parameter(s).');
-	list($userid, $type, $type_id, $name, $preview_url) = array((int) $_GET['userid'], (int) $_GET['type'], (int) $_GET['type_id'], $_GET['name'], 'http://'.$_GET['preview_url']);
+	list($userid, $type, $type_id, $name, $preview_url) = array((int) $_GET['userid'], (int) $_GET['type'], (int) $_GET['type_id'], $_GET['name'], 'https://'.$_GET['preview_url']);
 
 	$series_title = $series_url = "";
 	include "config.php"; //Contains $dbhost / $dbuser / $dbpass / $mf_dbname
@@ -28,7 +28,7 @@
 
 	if(!empty($_GET['series_title']) && !empty($_GET['series_url'])){
 		$series_title = $_GET['series_title'];
-		$series_url = 'http://'.$_GET['series_url'];
+		$series_url = 'https://'.$_GET['series_url'];
 	}
 
 	$check = "Added to";

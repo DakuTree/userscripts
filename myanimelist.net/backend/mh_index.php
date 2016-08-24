@@ -1,5 +1,5 @@
 <?php
-	header('Access-Control-Allow-Origin: http://myanimelist.net');
+	header('Access-Control-Allow-Origin: https://myanimelist.net');
 	header('Content-Type: application/json');
 	header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate"); #Make sure file isn't cached
 	header("Expires: Wed, 01 Jan 1995 12:00:00 GMT");

@@ -8,7 +8,7 @@
 	header("Expires: Wed, 01 Jan 1995 12:00:00 GMT");
 
 	$ref = ((!empty($_SERVER['HTTP_REFERER'])) ?
-		(substr($ref, 0, 23) !== 'http://myanimelist.net/' ?
+		(substr($ref, 0, 23) !== 'https://myanimelist.net/' ?
 			$_SERVER['HTTP_REFERER']
 		:
 			die("/* Bad URL */")
