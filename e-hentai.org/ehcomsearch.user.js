@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:(?:g\.)?e-|ex)hentai\.org\/(?!archiver\.php).*$/
 // @updated      2017-01-23
-// @version      2.1.1
+// @version      2.1.2
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-start
@@ -15,7 +15,7 @@
 /* jshint -W097, browser:true, devel:true, multistr: true */
 
 //Auto-redirect to https & non g.e (NOTE: This will be done by EH automatically some time in the future so this is just a temp-fix.)
-if (location.origin !== "https://e-hentai.org") location.origin = "https://e-hentai.org";
+if (location.origin !== "https://e-hentai.org") location.href = (location.href.replace(/^https?:\/\/(?:g\.)?e-hentai\.org/, "https://e-hentai.org"));
 
 var domain = (location.host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1].replace('-', '');
 var https  = location.protocol.replace(/.$/, '');

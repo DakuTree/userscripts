@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:(?:g\.)?e-|ex)hentai\.org\/g\/.*$/
 // @updated      2017-01-23
-// @version      1.3.1
+// @version      1.3.2
 // ==/UserScript==
 
 /******SETTINGS******/
@@ -15,7 +15,7 @@ var showCostPopup = false; // set to true to show a confirm popup including the 
 /********************/
 
 //Auto-redirect to https & non g.e (NOTE: This will be done by EH automatically some time in the future so this is just a temp-fix.)
-if (location.origin !== "https://e-hentai.org") location.origin = "https://e-hentai.org";
+if (location.origin !== "https://e-hentai.org") location.href = (location.href.replace(/^https?:\/\/(?:g\.)?e-hentai\.org/, "https://e-hentai.org"));
 
 var a  = document.getElementsByClassName('g2')[0].getElementsByTagName('a')[0]; // "Archive Download" link
 var xs = a.getAttributeNode('onclick').nodeValue.split('?')[1].split("'")[0]; //  Grab arg from onclick attr
