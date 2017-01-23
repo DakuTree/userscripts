@@ -5,14 +5,17 @@
 // @description  Enables one-click DL archive downloading (GP/Credits are still required). Supports E-Hentai & EXHentai.
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^http[s]?:\/\/(g\.e-|ex)hentai\.org\/g\/.*$/
-// @updated      2016-08-07
-// @version      1.2.1
+// @include      /^http[s]?:\/\/(?:(?:g\.)?e-|ex)hentai\.org\/g\/.*$/
+// @updated      2017-01-23
+// @version      1.3.0
 // ==/UserScript==
 
 /******SETTINGS******/
 var showCostPopup = false; // set to true to show a confirm popup including the cost of the gallery (this is still ignored if you have free gallery downloads via donation)
 /********************/
+
+//Auto-redirect to https (NOTE: This will be done by EH automatically some time in the future so this is just a temp-fix.)
+if (location.protocol !== "https:") location.protocol = "https:";
 
 var a  = document.getElementsByClassName('g2')[0].getElementsByTagName('a')[0]; // "Archive Download" link
 var xs = a.getAttributeNode('onclick').nodeValue.split('?')[1].split("'")[0]; //  Grab arg from onclick attr
@@ -34,7 +37,7 @@ a.addEventListener('click', function() {
 					downloadGallery = confirm("This gallery is not free.\nThe cost is: "+cost+".\nAre you sure you want to DL?");
 				}
 			}
-		}
+		};
 		http_cost.send();
 	}
 
@@ -57,9 +60,9 @@ a.addEventListener('click', function() {
 					//WTF?
 				}
 			}
-		}
+		};
 		http.send(params);
 	}
 
-	return false
+	return false;
 }, false);
