@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         MangaUpdates - Better Lists
+// @name         [Abandoned] MangaUpdates - Better Lists
 // @namespace    https://github.com/DakuTree/userscripts
 // @author       Daku (admin@codeanimu.net)
 // @description  Improves the functionality of the 'My Lists' feature to something "usable".
@@ -8,8 +8,8 @@
 // @include      /^https?:\/\/www\.mangaupdates\.com\/mylist.html(\?list=read)?$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/series.html\?id=.*$/
 // @include      /^https?:\/\/www\.mangaupdates\.com\/releases.html\?.*$/
-// @updated      2016-05-19
-// @version      1.4.0
+// @updated      2017-04-02
+// @version      1.4.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
@@ -71,7 +71,7 @@ $(document).ready(function() {
 							$('<img/>', {src: batotoBase64, style: 'width: 16px; height: 16px'})
 						)
 					).append(
-						$('<a/>', {href: 'http://mangafox.me/search.php?name_method=cw&name='+encodeURIComponent(title)+'&type=&author_method=cw&author=&artist_method=cw&artist=&genres%5BAction%5D=0&genres%5BAdult%5D=0&genres%5BAdventure%5D=0&genres%5BComedy%5D=0&genres%5BDoujinshi%5D=0&genres%5BDrama%5D=0&genres%5BEcchi%5D=0&genres%5BFantasy%5D=0&genres%5BGender+Bender%5D=0&genres%5BHarem%5D=0&genres%5BHistorical%5D=0&genres%5BHorror%5D=0&genres%5BJosei%5D=0&genres%5BMartial+Arts%5D=0&genres%5BMature%5D=0&genres%5BMecha%5D=0&genres%5BMystery%5D=0&genres%5BOne+Shot%5D=0&genres%5BPsychological%5D=0&genres%5BRomance%5D=0&genres%5BSchool+Life%5D=0&genres%5BSci-fi%5D=0&genres%5BSeinen%5D=0&genres%5BShoujo%5D=0&genres%5BShoujo+Ai%5D=0&genres%5BShounen%5D=0&genres%5BShounen+Ai%5D=0&genres%5BSlice+of+Life%5D=0&genres%5BSmut%5D=0&genres%5BSports%5D=0&genres%5BSupernatural%5D=0&genres%5BTragedy%5D=0&genres%5BWebtoons%5D=0&genres%5BYaoi%5D=0&genres%5BYuri%5D=0&released_method=eq&released=&rating_method=eq&rating=&is_completed=&advopts=1', target: '_blank'}).append(
+						$('<a/>', {href: 'https://mangafox.me/search.php?name_method=cw&name='+encodeURIComponent(title)+'&type=&author_method=cw&author=&artist_method=cw&artist=&genres%5BAction%5D=0&genres%5BAdult%5D=0&genres%5BAdventure%5D=0&genres%5BComedy%5D=0&genres%5BDoujinshi%5D=0&genres%5BDrama%5D=0&genres%5BEcchi%5D=0&genres%5BFantasy%5D=0&genres%5BGender+Bender%5D=0&genres%5BHarem%5D=0&genres%5BHistorical%5D=0&genres%5BHorror%5D=0&genres%5BJosei%5D=0&genres%5BMartial+Arts%5D=0&genres%5BMature%5D=0&genres%5BMecha%5D=0&genres%5BMystery%5D=0&genres%5BOne+Shot%5D=0&genres%5BPsychological%5D=0&genres%5BRomance%5D=0&genres%5BSchool+Life%5D=0&genres%5BSci-fi%5D=0&genres%5BSeinen%5D=0&genres%5BShoujo%5D=0&genres%5BShoujo+Ai%5D=0&genres%5BShounen%5D=0&genres%5BShounen+Ai%5D=0&genres%5BSlice+of+Life%5D=0&genres%5BSmut%5D=0&genres%5BSports%5D=0&genres%5BSupernatural%5D=0&genres%5BTragedy%5D=0&genres%5BWebtoons%5D=0&genres%5BYaoi%5D=0&genres%5BYuri%5D=0&released_method=eq&released=&rating_method=eq&rating=&is_completed=&advopts=1', target: '_blank'}).append(
 							$('<img/>', {src: mangafoxBase64, style: 'width: 16px; height: 16px'})
 						)
 					)
@@ -236,7 +236,7 @@ $(document).ready(function() {
 			var linkedIDs = JSON.parse(data);
 			for (var muID in linkedIDs) {
 				$('#r'+muID+' > td:nth-child(2)').prepend(
-					$('<a/>', {href: 'http://myanimelist.net/manga/'+linkedIDs[muID], style: 'margin-right: 3px;', 'data-mal': linkedIDs[muID]}).append(
+					$('<a/>', {href: 'https://myanimelist.net/manga/'+linkedIDs[muID], style: 'margin-right: 3px;', 'data-mal': linkedIDs[muID]}).append(
 						$('<img/>', {src: myanimelistBase64})
 					)
 				);
@@ -319,15 +319,15 @@ $(document).ready(function() {
 		//Try to import sync data from MAL
 		GM_xmlhttpRequest({
 			method: "GET",
-			url: "http://myanimelist.net/panel.php?go=export",
+			url: "https://myanimelist.net/panel.php?go=export",
 			onload: function(response) {
 				console.log("loaded export");
-				if(/http:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
+				if(/https:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
 					//user is logged in, export manga then sync
 					var csrf_token = /<meta name='csrf_token' content='([A-Za-z0-9]+)'>/.exec(response.responseText)[1];
 					GM_xmlhttpRequest({
 						method: "POST",
-						url: "http://myanimelist.net/panel.php?go=export",
+						url: "https://myanimelist.net/panel.php?go=export",
 						data: "type=2&subexport="+encodeURIComponent("Export My List")+"&csrf_token="+encodeURIComponent(csrf_token),
 						headers: {
 							"Content-Type": "application/x-www-form-urlencoded"
@@ -407,7 +407,7 @@ $(document).ready(function() {
 
 							$('#info_block > ul').append(
 								$('<li/>', {style: 'color: rgba(0, 255, 0, 0.70);'}).append('"').append(
-									$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+									$('<a/>', {href: 'https://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
 								).append('" has been added to your list')
 							);
 						} else {
@@ -416,13 +416,13 @@ $(document).ready(function() {
 
 								$('#info_block > ul').append(
 									$('<li/>').append('"').append(
-										$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+										$('<a/>', {href: 'https://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
 									).append('" has been updated')
 								);
 							} else {
 								// $('#info_block > ul').append(
 									// $('<li/>').append('"').append(
-										// $('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+										// $('<a/>', {href: 'https://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
 									// ).append('" has been updated')
 								// );
 							}
@@ -430,7 +430,7 @@ $(document).ready(function() {
 					} else {
 						$('#info_block > ul').append(
 							$('<li/>', {style: 'color: rgba(255, 0, 0, 0.70);'}).append('"').append(
-								$('<a/>', {href: 'http://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
+								$('<a/>', {href: 'https://myanimelist.net/manga/'+id, text: title, style: 'text-decoration: underline'})
 							).append('" is missing a mangaupdates ID')
 						);
 					}
@@ -513,9 +513,9 @@ $(document).ready(function() {
 		} else {
 			GM_xmlhttpRequest({
 				method: "GET",
-				url: "http://myanimelist.net/panel.php?go=export",
+				url: "https://myanimelist.net/panel.php?go=export",
 				onload: function(response) {
-					if(/http:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
+					if(/https:\/\/myanimelist.net\/logout.php/.exec(response.responseText)) {
 						//user is logged in, export manga then sync
 						malCSRF = /<meta name='csrf_token' content='([A-Za-z0-9]+)'>/.exec(response.responseText)[1];
 
@@ -541,7 +541,7 @@ $(document).ready(function() {
 			console.log(json);
 			GM_xmlhttpRequest({
 				method: "POST",
-				url: 'http://myanimelist.net/ownlist/manga/edit.json',
+				url: 'https://myanimelist.net/ownlist/manga/edit.json',
 				data: JSON.stringify(json)
 			});
 		}
