@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https?:\/\/horriblesubs\.info($|\/.*$)$/
-// @updated      2017-09-09
-// @version      1.0.0
+// @updated      2017-09-13
+// @version      1.0.1
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -23,7 +23,11 @@ const filtered = [
 	'100-pascal-sensei',
 	'pripri-chii-chan',
 	'action-heroine-cheer-fruits',
-	'nobunaga-no-shinobi'
+	'nobunaga-no-shinobi',
+	'cardfight-vanguard-g-next',
+	'folktales-from-japan-s2',
+	'heybot',
+	'yu-gi-oh-vrains'
 ];
 
 $(function() {
@@ -56,13 +60,17 @@ $(function() {
 					let html       = $(response);
 
 					html.filter('.release-info').each(function(i, e) {
-						let ele    = $(e),
-						    stub   = ele.find('a[title="See all releases for this show"]').attr('href').substr(7)/*,
+						console.log(e);
+						let ele    = $(e);
+							console.log(ele);
+						let stub   = ele.find('.rls-label').parent().attr('id').match(/^(.*?)-\w+$/)[1].replace('--', '-').replace(/-*$/, '')/*,
 						    extras = ele.nextUntil('table')*/;
 						if($.inArray(stub, filtered) !== -1) {
 							console.log(`Stub matched (${stub})`);
 							ele.addClass('filtered');
 							// html.splice(html.index(e), 1 + extras.length);
+						} else {
+							console.log(`Stub NOT matched (${stub})`);
 						}
 					});
 
