@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @updated      2017-12-XX
+// @updated      2017-12-06
 // @version      2.0.0
 // @grant        GM_addStyle
 // ==/UserScript==
