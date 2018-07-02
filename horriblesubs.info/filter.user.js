@@ -6,34 +6,31 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^https?:\/\/horriblesubs\.info($|\/.*$)$/
-// @updated      2017-09-13
-// @version      1.0.1
+// @updated      2018-07-02
+// @version      1.2.0
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @grant        GM_addStyle
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 /* jshint -W097, browser:true, devel:true */
-/* global $:false, jQuery:false, add_ep_click_event, GM_addStyle */
+/* global $:false, jQuery:false, add_ep_click_event, GM_addStyle, GM_getValue, GM_setValue */
 'use strict';
 
-const filtered = [
-	'hitorijime-my-hero',
-	'detective-conan',
-	'hina-logi-from-luck-logic',
-	'bonobono',
-	'100-pascal-sensei',
-	'pripri-chii-chan',
-	'action-heroine-cheer-fruits',
-	'nobunaga-no-shinobi',
-	'cardfight-vanguard-g-next',
-	'folktales-from-japan-s2',
-	'heybot',
-	'yu-gi-oh-vrains'
-];
-
 $(function() {
-	GM_addStyle(".filtered {display: none;}");
+	GM_addStyle(`
+		.filtered {display: none;}
+		.filter-link {
+			line-height: inherit;
+			cursor: pointer;
+
+			padding: 5px 20px 5px 20px;
+			float: left;
+		}
+	`);
 
 	//Add filter toggle
+	//FIXME
 	$('#search').prepend(
 		$('<div/>', {id: 'filter-container', style: 'display: inline-block; font-weight: 400; position: absolute; left: 0; top: 6px;'}).append(
 			$('<input/>', {type: 'checkbox', id: 'filter'}).change(function() {
@@ -44,7 +41,7 @@ $(function() {
 				}
 			})
 		).append(
-			$('<label/>', {text: 'Show Filtered', style: 'vertical-align: bottom;'})
+			$('<label/>', {'for': 'filter', text: 'Show Filtered', style: 'vertical-align: bottom;'})
 		)
 	);
 
@@ -60,17 +57,22 @@ $(function() {
 					let html       = $(response);
 
 					html.filter('.release-info').each(function(i, e) {
-						console.log(e);
-						let ele    = $(e);
-							console.log(ele);
-						let stub   = ele.find('.rls-label').parent().attr('id').match(/^(.*?)-\w+$/)[1].replace('--', '-').replace(/-*$/, '')/*,
+						let ele    = $(e),
+						    stub   = ele.find('.rls-label').parent().attr('id').match(/^(.*?)-\w+$/)[1].replace('--', '-').replace(/-*$/, '')/*,
 						    extras = ele.nextUntil('table')*/;
-						if($.inArray(stub, filtered) !== -1) {
+
+						let tr = ele.find('tr > .rls-label');
+						tr.prepend(
+							'<span class="dashicons dashicons-no filter-link"></span>'
+						);
+						if($.inArray(stub, window.filtered) !== -1) {
 							console.log(`Stub matched (${stub})`);
-							ele.addClass('filtered');
+							if($('#filter').is(':checked')) {
+								ele.addClass('filtered-show');
+							} else {
+								ele.addClass('filtered');
+							}
 							// html.splice(html.index(e), 1 + extras.length);
-						} else {
-							console.log(`Stub NOT matched (${stub})`);
 						}
 					});
 
@@ -83,5 +85,50 @@ $(function() {
             }
         });
     });
-	$('refreshbutton').click(); //FIXME: We should just handle the original load event on our own.
+
+	$('.index-container').on('click', '.filter-link', function(e) {
+		e.preventDefault();
+
+		let li   = $(this).closest('li'),
+		    stub = $(li).find('> a').attr('href').replace(/^\/shows\/(.*?)#.*?$/, '$1');
+
+		console.log(`Filtering "${stub}"`);
+		window.filtered.push(stub);
+		GM_setValue('filtered', window.filtered);
+
+		filterReleases();
+    });
+	//More link
+	//TODO
+
+	//Load event
+	//TODO
+	
+	function filterReleases(addFilterLink = false) {
+		$('.latest-releases > ul > li').each(function() {
+			if(addFilterLink) { $(this)/*.find('> a')*/.prepend('<span class="dashicons dashicons-no filter-link"></span>'); }
+
+			let stub = $(this).find('> a').attr('href').replace(/^\/shows\/(.*?)#.*?$/, '$1');
+			if($.inArray(stub, window.filtered) !== -1) {
+				console.log(`Stub matched (${stub})`);
+
+				$(this).addClass('filtered');
+			}
+		});
+		// if($.inArray(stub, window.filtered) !== -1) {
+	}
+
+	function main() {
+		window.filtered = GM_getValue('filtered') || [];
+		console.log(window.filtered);
+
+		// $('.refreshbutton').click(); //FIXME: We should just handle the original load event on our own.
+		var checkExist = setInterval(function() {
+			if ($('.latest-releases').length) {
+				filterReleases(true);
+				clearInterval(checkExist);
+			}
+		}, 500); // check every 100ms
+	}
+	main();
 });
