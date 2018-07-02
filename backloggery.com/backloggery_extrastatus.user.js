@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @updated      2017-12-06
-// @version      2.0.0
+// @updated      2018-07-02
+// @version      2.0.1
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -95,7 +95,7 @@ $(function() {
 			$(games).each(function(){
 				let game            = $(this),
 					gameDescription = game.children(':eq(4)').text().trim(),
-				    priority        = 0;
+				    priority        = -1;
 
 				game.parent().attr('data-text', gameDescription); //Keep the original description for editting purposes.
 
@@ -143,7 +143,7 @@ $(function() {
 	$(games_container).insertAfter($('#intro > h1:first-of-type + .hd-desc') || $('#intro > h1:first-of-type'));
 
 	sortGames();
-	
+
 	/*****************************************/
 
 	function getCategories() {
