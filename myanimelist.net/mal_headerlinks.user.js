@@ -8,8 +8,8 @@
 // @include      /^http[s]?:\/\/myanimelist\.net\/(?!(?:(?:anime|manga)list).*$).*$/
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
-// @updated      2016-08-24
-// @version      1.0.17
+// @updated      2018-07-10
+// @version      1.0.18
 // ==/UserScript==
 /* jshint -W097 */
 /* global $:false, jQuery:false */
@@ -78,7 +78,9 @@ if($('.btn-signup').length === 0) {
 				)
 			).append(
 				$('<li/>').append(
-					$('<a/>', {href: 'https://myanimelist.net/logout.php', text: 'Logout'}) //Logout
+					$('<form/>', {action: 'https://myanimelist.net/logout.php', method: 'post'}).append( //Logout
+						$('<a/>', {href: 'javascript:void(0);', onclick: '$(this).parent().submit();', class: 'logout', text: 'Logout'})
+					)
 				)
 			)
 		)
