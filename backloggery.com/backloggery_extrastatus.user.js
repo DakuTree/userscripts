@@ -7,8 +7,8 @@
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @updated      2018-07-02
-// @version      2.0.1
+// @updated      2018-07-03
+// @version      2.1.0
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -38,6 +38,11 @@ $(function() {
 			display: block;
 			margin-bottom: 5px;
 		}
+		.us-game-scroll {
+			overflow-y: auto;
+			max-height: 285px;
+			overflow-x: hidden;
+		}
 	`);
 
 	//Case insensitive :contains || via: https://gist.github.com/jbcappell/2648373
@@ -53,7 +58,9 @@ $(function() {
 	let userCategories = getCategories();
 	$.each($.extend(defaultCategories.start, userCategories, defaultCategories.end), function(tag, data) {
 		let cateTitle       = data.title,
-		    cateDescription = data.description;
+		    cateDescription = data.description,
+			cateScroll      = data.scroll,
+			cateMaxHeight   = data.maxHeight;
 
 		//Validate data.
 		if(!tag.match(/^[a-zA-Z0-9-_\(\)\.\?\#\~\:\{\}\"\'\, ]+$/)) {
@@ -92,6 +99,13 @@ $(function() {
 			}
 
 			let games_container = $('<div/>', {class: 'es-games'});
+			if(cateScroll) {
+				games_container.addClass('us-game-scroll');
+			}
+			if(cateMaxHeight) {
+				games_container.css('max-height', parseInt(cateMaxHeight));
+			}
+
 			$(games).each(function(){
 				let game            = $(this),
 					gameDescription = game.children(':eq(4)').text().trim(),
