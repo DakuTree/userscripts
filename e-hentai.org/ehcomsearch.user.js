@@ -6,8 +6,8 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:(?:g\.)?e-|ex)hentai\.org\/(?!archiver\.php).*$/
-// @updated      2017-01-28
-// @version      2.1.3
+// @updated      2022-04-21
+// @version      2.1.4
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-start
@@ -219,7 +219,7 @@ function main(){
 				}
 				else if(id == 'fsdiv'){
 					$('#'+id).append(
-						$('<form/>', {action: https+'://'+(domain == 'ehentai' ? 'upload.e-hentai.org' : 'exhentai.org/upload')+'image_lookup.php', method: 'post', enctype: 'multipart/form-data'}).append(
+						$('<form/>', {action: https+'://'+(domain == 'ehentai' ? 'upload.e-hentai.org' : 'exhentai.org/upload')+'/image_lookup.php', method: 'post', enctype: 'multipart/form-data'}).append(
 							$('<div/>').append(
 								$('<p/>', {text: 'If you want to combine a file search with a category/keyword search, upload the file first.', style: 'font-weight: bold;'})).append(
 								$('<p/>', {text: 'Select a file to upload, then hit File Search. All public galleries containing this exact file will be displayed.'})).append(
