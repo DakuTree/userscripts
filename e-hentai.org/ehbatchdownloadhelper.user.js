@@ -18,7 +18,7 @@
 // ==/UserScript==
 
 /******SETTINGS******/
-const showCostPopup  = true; // set to true to show a confirm popup including the cost of the gallery (this is still ignored if you have free gallery downloads via donation)
+const showCostPopup = true; // set to true to show a confirm popup including the cost of the gallery (this is still ignored if you have free gallery downloads via donation)
 const averageDLSpeed = 10; // used to calculate TbS time (in seconds).
 /********************/
 
@@ -70,39 +70,39 @@ function main() {
 	//1: Generate everything at top of page.
 
 
-	let batchElement     = $('<div/>', {id: 'batchDownloader'}),
-		navElement       = $('<nav/>'),
-		resultElement    = $('<table/>', {id: 'batchResult'}),
-	    hideDLElement    = $('<button/>', {text: 'Hide Downloaded'}),
-	    hideDupeElement  = $('<button/>', {text: 'Hide Dupes'}),
-	    markElement      = $('<button/>', {text: 'Start Marking'}),
-		confirmElement   = $('<button/>', {text: 'End Marking & Parse'}),
-		queueElement     = $('<button/>', {id: 'queueDL', text: 'Queue Downloads'}),
-		queueTimeElement = $('<select/>', {id: 'queueDLTime'}).append(
-			$('<option/>', {text: '10 seconds', value: '10'})).append(
-			$('<option/>', {text: '30 seconds', value: '30', selected: true})).append(
-			$('<option/>', {text: '60 seconds', value: '60'})).append(
-			$('<option/>', {text: '120 seconds', value: '120'})
-		),
-		queueTimeExtraElement = $('<label/>', {id: 'queueDLTimeExtra', text: ' TbS: ', title: 'Add time by size of DL'}).append($('<input/>', {type: 'checkbox', checked: true}));
+	let batchElement = $('<div/>', { id: 'batchDownloader' }),
+		navElement = $('<nav/>'),
+		resultElement = $('<table/>', { id: 'batchResult' }),
+		hideDLElement = $('<button/>', { text: 'Hide Downloaded' }),
+		hideDupeElement = $('<button/>', { text: 'Hide Dupes' }),
+		markElement = $('<button/>', { text: 'Start Marking' }),
+		confirmElement = $('<button/>', { text: 'End Marking & Parse' }),
+		queueElement = $('<button/>', { id: 'queueDL', text: 'Queue Downloads' }),
+		queueTimeElement = $('<select/>', { id: 'queueDLTime' }).append(
+			$('<option/>', { text: '10 seconds', value: '10' })).append(
+				$('<option/>', { text: '30 seconds', value: '30', selected: true })).append(
+					$('<option/>', { text: '60 seconds', value: '60' })).append(
+						$('<option/>', { text: '120 seconds', value: '120' })
+					),
+		queueTimeExtraElement = $('<label/>', { id: 'queueDLTimeExtra', text: ' TbS: ', title: 'Add time by size of DL' }).append($('<input/>', { type: 'checkbox', checked: true }));
 
-	hideDLElement.click(function() {
-		$('.id1').each(function() {
-			if($(this).css('background-color') == 'rgba(25, 229, 255, 0.3)') {
+	hideDLElement.click(function () {
+		$('.id1').each(function () {
+			if ($(this).css('background-color') == 'rgba(25, 229, 255, 0.3)') {
 				$(this).hide();
 			}
 		});
 	});
-	hideDupeElement.click(function() {
-		$('.id1').each(function() {
-			if($(this).css('background-color') == 'rgba(25, 255, 89, 0.2)') {
+	hideDupeElement.click(function () {
+		$('.id1').each(function () {
+			if ($(this).css('background-color') == 'rgba(25, 255, 89, 0.2)') {
 				$(this).hide();
 			}
 		});
 	});
-	markElement.click(function() {
+	markElement.click(function () {
 		unsafeWindow.clickbound = unsafeWindow.clickbound || false;
-		if(unsafeWindow.clickbound === false) {
+		if (unsafeWindow.clickbound === false) {
 			$('body').addClass('batchEnabled');
 			$('.id1 a[href*="/g/"]').click(function (e) {
 				var c = $(this).closest('.id1');
@@ -113,9 +113,9 @@ function main() {
 			//This should never occur, as we have a seperate button to disable.
 		}
 	});
-	confirmElement.click(function() {
+	confirmElement.click(function () {
 		//Remove batch mode.
-		if($('body').hasClass('batchEnabled')) {
+		if ($('body').hasClass('batchEnabled')) {
 			$('body').removeClass('batchEnabled');
 			$('.id1 a[href*="/g/"]').unbind('click');
 		}
@@ -123,54 +123,54 @@ function main() {
 		//Attempt to parse selected series.
 		resultElement.empty();
 		let selected = {};
-		$('.batchSelected').find('> .id2 > a').each(function() {
+		$('.batchSelected').find('> .id2 > a').each(function () {
 			let title = $(this).text().trim(),
-				link  = $(this).attr('href');
+				link = $(this).attr('href');
 
 			selected[link] = title;
 
 			resultElement.append(
 				$('<tr/>').append(
-					$('<td/>', {class: 'batchTD1'}).append(
-						$('<a/>', {href: link, text: title})
+					$('<td/>', { class: 'batchTD1' }).append(
+						$('<a/>', { href: link, text: title })
 					)
 				).append(
 					$('<td/>').append(
-						$('<a/>', {class: 'batchDL', href: '#', text: 'Download'})
+						$('<a/>', { class: 'batchDL', href: '#', text: 'Download' })
 					)
 				).append(
-					$('<td/>', {class: 'batchStatus'}).append(
-						$('<i/>', {class: 'fa fa-minus', 'aria-hidden': 'true'})
+					$('<td/>', { class: 'batchStatus' }).append(
+						$('<i/>', { class: 'fa fa-minus', 'aria-hidden': 'true' })
 					)
 				)
 			);
 		});
 		console.log(selected);
 	});
-	batchElement.on('click', '.batchDL', function(e) {
-		let tr     = $(this).closest('tr'),
-		    link   = tr.find('.batchTD1 > a').attr('href'),
+	batchElement.on('click', '.batchDL', function (e) {
+		let tr = $(this).closest('tr'),
+			link = tr.find('.batchTD1 > a').attr('href'),
 			statusE = tr.find('.batchStatus');
 		// console.log(link);
 
-		$.get(link, function(data) {
+		$.get(link, function (data) {
 			// console.log(data);
-			let dlMatch   = data.match('https:\/\/e-hentai\.org\/archiver\.php\\?(.*?)\''),
-			    sizeMatch = data.match('<td class="gdt1">File Size:<\/td><td class="gdt2">(.*?)<\/td>');
-			if((dlMatch && dlMatch.length > 0) && (sizeMatch && sizeMatch.length > 0)) {
-				let dlLink   = decode(dlMatch[1]);
-				    // filesize = sizetotime(sizeMatch[1]);
+			let dlMatch = data.match('https:\/\/e-hentai\.org\/archiver\.php\\?(.*?)\''),
+				sizeMatch = data.match('<td class="gdt1">File Size:<\/td><td class="gdt2">(.*?)<\/td>');
+			if ((dlMatch && dlMatch.length > 0) && (sizeMatch && sizeMatch.length > 0)) {
+				let dlLink = decode(dlMatch[1]);
+				// filesize = sizetotime(sizeMatch[1]);
 
 				//DO SOMETHING.
 				//unsafeWindow.popUp(`https://e-hentai.org/archiver.php?${dlLink}`, 480, 320);
-				download(dlLink, function(status) {
-					switch(status) {
+				download(dlLink, function (status) {
+					switch (status) {
 						case 0: //Unsuccessful.
-							statusE.empty().append($('<i/>', {class: 'fa fa-times', 'aria-hidden': 'true'}));
+							statusE.empty().append($('<i/>', { class: 'fa fa-times', 'aria-hidden': 'true' }));
 							break;
 						case 1: //Successful
 							downloadTagList(link, data);
-							statusE.empty().append($('<i/>', {class: 'fa fa-check', 'aria-hidden': 'true'}));
+							statusE.empty().append($('<i/>', { class: 'fa fa-check', 'aria-hidden': 'true' }));
 							updateDBDownloaded(link);
 
 							$(`.id1 a[href="${link}`).closest('.id1')
@@ -179,7 +179,7 @@ function main() {
 
 							break;
 						case 2:
-							statusE.empty().append($('<i/>', {class: 'fa fa-question', 'aria-hidden': 'true'}));
+							statusE.empty().append($('<i/>', { class: 'fa fa-question', 'aria-hidden': 'true' }));
 							break;
 					}
 				});
@@ -190,17 +190,17 @@ function main() {
 		e.preventDefault();
 	});
 
-	queueElement.click(function() {
-		let time      = 0,
-		    queueTime = Number($('#queueDLTime').val()) * 1000;
-		$('#batchResult > tr').each(function(i) {
+	queueElement.click(function () {
+		let time = 0,
+			queueTime = Number($('#queueDLTime').val()) * 1000;
+		$('#batchResult > tr').each(function (i) {
 			let _this = this;
-			setTimeout(function() {
+			setTimeout(function () {
 				$(_this).find('.batchDL').click();
 			}, time);
 			time += queueTime;
 			// if($('#queueDLTimeExtra').is(':checked')) {
-				//time += sizetotime(...);
+			//time += sizetotime(...);
 			// }
 		});
 	});
@@ -221,62 +221,62 @@ function main() {
 	$('.ido').prepend(batchElement);
 }
 
-$(function() {
+$(function () {
 	main();
 });
 
 function download(xs, callback) {
 	let downloadGallery = true,
-	    success         = 0;
+		success = 0;
 
-	if(showCostPopup) {
+	if (showCostPopup) {
 		$.ajax({
-			url : `https://e-hentai.org/archiver.php?${xs}`,
-			type : 'GET',
-			async : false
-		}).done(function(data) {
+			url: `https://e-hentai.org/archiver.php?${xs}`,
+			type: 'GET',
+			async: false
+		}).done(function (data) {
 			let match_cost = data.match(/Download Cost:\s+(.*)/);
 
 			//If gallery has a download cost, and is not free, ask the user if they want to DL the gallery via a confirm popup.
-			if(match_cost && match_cost[1].replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gi,'').trim() !== "Free!"){
-				let cost = match_cost[1].replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gi,'').trim(),
-				    costCheck = cost.split(' ');
-				if(costCheck[1] == 'GP') {
-					if(parseInt(costCheck[0]) < 5000) {
+			if (match_cost && match_cost[1].replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gi, '').trim() !== "Free!") {
+				let cost = match_cost[1].replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gi, '').trim(),
+					costCheck = cost.split(' ');
+				if (costCheck[1] == 'GP') {
+					if (parseInt(costCheck[0]) < 5000) {
 						downloadGallery = true;
 					} else {
 						console.log(costCheck[0]);
-						downloadGallery = confirm("This gallery is not free.\nThe cost is: "+cost+".\nAre you sure you want to DL?");
+						downloadGallery = confirm("This gallery is not free.\nThe cost is: " + cost + ".\nAre you sure you want to DL?");
 					}
 				} else {
 					console.log(costCheck);
-					downloadGallery = confirm("This gallery is not free.\nThe cost is: "+cost+".\nAre you sure you want to DL?");
+					downloadGallery = confirm("This gallery is not free.\nThe cost is: " + cost + ".\nAre you sure you want to DL?");
 				}
 				// downloadGallery = false; //TODO: Handle this elsewhere.
 			}
-		}).fail(function() {
+		}).fail(function () {
 			//FAIL
 		});
 	}
 
-	if(downloadGallery) {
+	if (downloadGallery) {
 		let dfd = $.Deferred();
 
 		$.ajax({
-			url : `https://e-hentai.org/archiver.php?${xs}`,
-			type : 'POST',
-			data : {dlcheck: 'Download Original Archive'},
-			contentType : 'application/x-www-form-urlencoded',
+			url: `https://e-hentai.org/archiver.php?${xs}`,
+			type: 'POST',
+			data: { dlcheck: 'Download Original Archive' },
+			contentType: 'application/x-www-form-urlencoded',
 			// async : false
-		}).done(function(data) {
-			if(data == 'Insufficient funds.') {
+		}).done(function (data) {
+			if (data == 'Insufficient funds.') {
 				alert('Insufficient funds.');
 			}
-			else if(data.indexOf("Please wait...") !== -1){ //Check if pop-up opened.
+			else if (data.indexOf("Please wait...") !== -1) { //Check if pop-up opened.
 				let match = /<a href="(http.*?)"/g.exec(data);
 				//FIXME: This causes hanging?
 				success = 1;
-				setTimeout(function() {
+				setTimeout(function () {
 					window.location.assign(match[1] + "?start=1");
 					// window.open(match[1] + "?start=1", '_blank');
 				}, 1000);
@@ -285,11 +285,11 @@ function download(xs, callback) {
 				//WTF?
 				alert('Something went wrong?');
 			}
-		}).fail(function() {
+		}).fail(function () {
 			//FAIL
 			alert('Download failed?');
 			success = 0;
-		}).always(function() {
+		}).always(function () {
 			dfd.resolve();
 		});
 
@@ -301,48 +301,48 @@ function download(xs, callback) {
 	}
 }
 
-function downloadTagList(src_url, data){
+function downloadTagList(src_url, data) {
 	let page = $(data.replace(/^.*?(<body.*?<\/body>).*?$/, '$1'));
 
 	let json = {
-		"title"              : page.find('#gn').text(),
-		"title_untranslated" : page.find('#gj').text(),
-		"type"               : page.find('#gmid .ic').attr('src').replace(/^.*?\/g\/c\/(.*?)\.[a-zA-Z]+$/, '$1'),
-		"description"        : page.find('a[name=ulcomment]').closest('.c1').find('.c6').text(),
-		"pagecount"          : page.find('.gdt1:contains("Length") + .gdt2').text().slice(0, -6),
-		"source"             : src_url,
-		"taglist"            : '',
+		"title": page.find('#gn').text(),
+		"title_untranslated": page.find('#gj').text(),
+		"type": page.find('#gmid .ic').attr('src').replace(/^.*?\/g\/c\/(.*?)\.[a-zA-Z]+$/, '$1'),
+		"description": page.find('a[name=ulcomment]').closest('.c1').find('.c6').text(),
+		"pagecount": page.find('.gdt1:contains("Length") + .gdt2').text().slice(0, -6),
+		"source": src_url,
+		"taglist": '',
 
-		init: function(){
-			this['ftaglist'] = '@:@notchecked source:' + this['source'] + ' type:'+this['type'] + ' ';
+		init: function () {
+			this['ftaglist'] = '@:@notchecked source:' + this['source'] + ' type:' + this['type'] + ' ';
 			return this;
 		}
 	}.init();
 
-	page.find('#taglist div').each(function() {
+	page.find('#taglist div').each(function () {
 		let tag = $(this).attr('id').substr(3);
-			json.taglist += tag + ' ';
-			if(/^(parody|character|group|artist):/.test(tag)){
-				json.ftaglist += tag + ' ';
-			}else{
-				json.ftaglist += tag.replace(/^(.*?):/, '') + ' ';
-			}
+		json.taglist += tag + ' ';
+		if (/^(parody|character|group|artist):/.test(tag)) {
+			json.ftaglist += tag + ' ';
+		} else {
+			json.ftaglist += tag.replace(/^(.*?):/, '') + ' ';
+		}
 	});
 	json.taglist = json.taglist.trim();
 
 	let final_filename = page.find('#gn').text().
-	                 replace(/[\?]/g, " ").
-					 replace(/[\/]/g, " ").
-					 replace(/[\|]/g, " ").
-					 replace(/[\*]/g, " ").
-					 replace(/[\/]/g, " ").
-					 replace(/[\"]/g, "'"); //Rough attempt at fixing broken filenames
-					 //BUG: Browsers replace certain characters for file system reasons.
+		replace(/[\?]/g, " ").
+		replace(/[\/]/g, " ").
+		replace(/[\|]/g, " ").
+		replace(/[\*]/g, " ").
+		replace(/[\/]/g, " ").
+		replace(/[\"]/g, "'"); //Rough attempt at fixing broken filenames
+	//BUG: Browsers replace certain characters for file system reasons.
 
 	//We delay the load for stupid browser bug reasons.
 	setTimeout(function () {
-		let encodedFilename = encodeURIComponent((final_filename.trim().substr(0, 250))+".json"),
-		    encodedJSON     = encodeURIComponent(JSON.stringify(json, null, "\t"));
+		let encodedFilename = encodeURIComponent((final_filename.trim().substr(0, 250)) + ".json"),
+			encodedJSON = encodeURIComponent(JSON.stringify(json, null, "\t"));
 		downloadURL(`https://ftag.localhost/downloadFile.php?filename=${encodedFilename}&data=${encodedJSON}`);
 	}, 500);
 }
@@ -352,8 +352,8 @@ function updateDBDownloaded(src_url) {
 	$.get(url);
 }
 
-function downloadURL(url){
-	let iframe = $('<iframe/>', {id: 'hiddenDownloader', style: 'display: none', src: url});
+function downloadURL(url) {
+	let iframe = $('<iframe/>', { id: 'hiddenDownloader', style: 'display: none', src: url });
 	iframe.appendTo('body');
 }
 
@@ -366,10 +366,10 @@ function decode(text) {
 }
 
 function sizetotime(sizeText) {
-	let arr  = sizeText.split(' '),
+	let arr = sizeText.split(' '),
 		size = parseFloat(arr[0]),
-	    time = 0;
-	switch(arr[1]) {
+		time = 0;
+	switch (arr[1]) {
 		case 'KB':
 			//do nothing
 			break;
@@ -404,4 +404,4 @@ function sizetotime(sizeText) {
 //     * You also have the case where the new thing is a book, but there isn't anything else new, but series need to be checked if they need to be removed.
 //     * There is also the case of conflicts occuring if two series in the batch are from the same artist/group.
 //     * Another issue is two series in a batch being actual dupes.
-//     * 
+//     *

@@ -1,17 +1,21 @@
 // ==UserScript==
 // @name         Backloggery - Enhanced Now Playing List
-// @namespace    https://github.com/DakuTree/userscripts
-// @author       Daku (admin@codeanimu.net)
 // @description  Enhances the "Now Playing" list. Adds seperate categories, custom sorting, genre filtering & quick description editting.
-// @icon         https://backloggery.com/favicon.ico
+// @author       Daku (admin@codeanimu.net)
+// @namespace    https://github.com/DakuTree/userscripts
+// @homepage     https://github.com/DakuTree/userscripts
+// @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
+// @icon         https://backloggery.com/favicon.ico
+// @match        https://backloggery.com/*
+// @exclude      /^https:\/\/(?:www\.)?backloggery\.com\/(?:.*(\.php).*)$/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
-// @updated      2021-09-26
-// @version      3.0.1
+
 // @grant        GM_addStyle
+// @version      3.0.2
 // ==/UserScript==
+
 "use strict";
 
 //Case insensitive :contains || via: https://gist.github.com/jbcappell/2648373

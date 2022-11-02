@@ -1,17 +1,22 @@
 // ==UserScript==
 // @name         Backloggery - AJAX Cookie of Fortune
-// @namespace    https://github.com/DakuTree/userscripts
-// @author       Daku (admin@codeanimu.net)
 // @description  Makes the cookie of fortune use AJAX rather than go to a seperate page.
+// @author       Daku (admin@codeanimu.net)
+// @namespace    https://github.com/DakuTree/userscripts
+// @homepage     https://github.com/DakuTree/userscripts
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^http[s]?:\/\/(www\.)?backloggery\.com\/random\.php\?user\=.*$/
+// @icon         https://backloggery.com/favicon.ico
+// @match        https://backloggery.com/random.php?user=*
+// @match        https://www.backloggery.com/random.php?user=*
+// @version      1.0.2
+
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
-// @updated      2016-02-13
-// @version      1.0.1
 // ==/UserScript==
 
+
+/* global GM_addStyle:false */
 GM_addStyle('\
 	#fortune {position: relative; top: -46px; left: 292px;}\
 	#content-wide > section > div > img {margin-bottom: -45px;}');

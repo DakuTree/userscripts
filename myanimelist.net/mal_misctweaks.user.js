@@ -6,7 +6,7 @@
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/myanimelist\.net\/(anime|manga|people|character)(\/|\.php\?(id|q)\=).*$/
-// @updated      2016-03-09
+// @updated      2015-11-17
 // @version      1.1.2
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.1/jquery.min.js
 // ==/UserScript==
@@ -17,8 +17,8 @@ $('#topSearchValue').val(type);
 
 /* Note type of series in related block */
 //TODO: This needs support for novels
-$('.anime_detail_related_anime a').each(function() {
+$('.anime_detail_related_anime a').each(function () {
 	$(this).text(
-		$(this).text() + " ("+$(this).attr('href').match(/(anime|manga)/)[0].replace(/^(.)/, function(e){return e.toUpperCase(); })+")"
+		$(this).text() + " (" + $(this).attr('href').match(/(anime|manga)/)[0].replace(/^(.)/, function (e) { return e.toUpperCase(); }) + ")"
 	);
 });

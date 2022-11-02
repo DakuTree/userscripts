@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name         Backloggery - NP Extra Statuses
-// @namespace    https://github.com/DakuTree/userscripts
-// @author       Daku (admin@codeanimu.net)
+// @name         [Retired] Backloggery - NP Extra Statuses
 // @description  Adds ability to filter "Now Playing" games under specific categories (on-hold, plan-to-play, etc.) & order them.
+// @author       Daku (admin@codeanimu.net)
+// @namespace    https://github.com/DakuTree/userscripts
+// @homepage     https://github.com/DakuTree/userscripts
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @updated      2018-07-03
-// @version      2.1.0
+// @version      2.1.1
 // @grant        GM_addStyle
 // ==/UserScript==
 

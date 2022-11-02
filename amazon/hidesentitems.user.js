@@ -1,17 +1,28 @@
 // ==UserScript==
 // @name         Amazon - Hide delivered items from open orders
-// @namespace    https://github.com/DakuTree/userscripts
-// @author       Daku (admin@codeanimu.net)
 // @description  Hides all delivered items from your open orders.
+// @author       Daku (admin@codeanimu.net)
+// @namespace    https://github.com/DakuTree/userscripts
+// @homepage     https://github.com/DakuTree/userscripts
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
-// @include      /^https?:\/\/www\.amazon\.(?:co(?:m|\.(?:uk|jp))|es|de|it|fr|ca|cn)\/gp\/(?:your-account|css)?\/?order-history.*orderFilter\=open.*$/
-// @updated      2016-01-31
-// @version      1.0.1
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js
+// @icon         https://www.amazon.co.uk/favicon.ico
+// @match        https://www.amazon.co.uk/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.co.jp/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.com/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.es/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.de/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.it/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.fr/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.ca/gp/*/order-history/*orderFilter=open*
+// @match        https://www.amazon.cn/gp/*/order-history/*orderFilter=open*
+// @version      1.0.2
+
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js
 // ==/UserScript==
-/* jshint -W097 */
-/* global $:false, jQuery:false */
+
+
+// (?:co(?:m|\.(?:uk|jp))|es|de|it|fr|ca|cn)
 'use strict';
 
 //Hide delivered items.

@@ -1,15 +1,16 @@
 // ==UserScript==
-// @name         Backloggery - Quick Edit Progress Note
-// @namespace    https://github.com/DakuTree/userscripts
-// @author       Daku (admin@codeanimu.net)
+// @name         [Retired] Backloggery - Quick Edit Progress Note
 // @description  Adds an inline way to edit progress notes from the profile page.
+// @author       Daku (admin@codeanimu.net)
+// @namespace    https://github.com/DakuTree/userscripts
+// @homepage     https://github.com/DakuTree/userscripts
 // @homepageURL  https://github.com/DakuTree/userscripts
 // @supportURL   https://github.com/DakuTree/userscripts/issues
+// @icon         https://backloggery.com/favicon.ico
 // @include      /^http[s]?:\/\/(?:www\.)?backloggery\.com\/(?:.(?!\.php))+$/
 // @grant        GM_addStyle
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
-// @updated      2016-02-25
-// @version      1.0.2
+// @version      1.0.3
 // ==/UserScript==
 
 var stealthSave = true;
