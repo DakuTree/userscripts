@@ -1,21 +1,22 @@
 module.exports = {
-	env: {
-		browser: true,
-		es6: true,
-		jquery: true,
+	"env": {
+		"browser": true,
+		"es2021":  true,
+		"jquery":  true
 	},
-	extends: ["eslint:recommended", "plugin:userscripts/recommended"],
-	globals: {
-		Atomics: "readonly",
-		SharedArrayBuffer: "readonly",
+	"extends": ["eslint:recommended", "plugin:userscripts/recommended"],
+	"globals": {
+		"Atomics": "readonly",
+		"SharedArrayBuffer": "readonly",
 	},
-	parserOptions: {
-		ecmaFeatures: {
-			jsx: true,
+	"overrides": [],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true,
 		},
-		ecmaVersion: 2019, // Allows for the parsing of modern ECMAScript features
+		"ecmaVersion": "latest"
 	},
-	rules: {
+	"rules": {
 		// "accessor-pairs": "error",
 		// "array-bracket-newline": "error",
 		// "array-bracket-spacing": ["error", "never"],
@@ -256,5 +257,5 @@ module.exports = {
 		// "wrap-regex": "error",
 		// "yield-star-spacing": "error",
 		// yoda: ["error", "never"],
-	},
-};
+	}
+}
